@@ -1,0 +1,104 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-update-the-mod-creation-wizard-frontend-src-pages-modcreatewizardpage-tsx-to-replace-the-existing-game-selector-create-new-game-dialog-with-a-single-required-freeform-text-input-where-the-creator-types-the-game-name-the-mod-is-for",
+      "featureTitle": "Update the mod creation wizard (frontend/src/pages/ModCreateWizardPage.tsx) to replace the existing game selector + “Create New Game” dialog with a single required freeform text input where the creator types the game name the mod is for.",
+      "files": [
+        "frontend/src/pages/ModCreateWizardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-new-required-prompt-field-to-the-mod-creation-flow-wizard-details-step-so-the-creator-can-write-a-prompt-for-the-mod-and-include-this-value-when-publishing-the-mod",
+      "featureTitle": "Add a new required \"prompt\" field to the mod creation flow (wizard details step) so the creator can write a prompt for the mod, and include this value when publishing the mod.",
+      "files": [
+        "frontend/src/components/mods/ModEditorForm.tsx",
+        "frontend/src/pages/ModCreateWizardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-frontend-validation-helpers-to-validate-the-new-freeform-game-name-input-and-the-new-prompt-field-and-wire-those-validations-into-the-wizard-step-gating-canproceedfromgame-canproceedfromdetails",
+      "featureTitle": "Update frontend validation helpers to validate the new freeform game name input and the new prompt field, and wire those validations into the wizard step gating (canProceedFromGame, canProceedFromDetails).",
+      "files": [
+        "frontend/src/components/mods/ModEditorForm.tsx",
+        "frontend/src/lib/validation.ts",
+        "frontend/src/pages/ModCreateWizardPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-mod-displays-to-surface-the-stored-game-name-and-the-new-prompt-field-anywhere-mod-metadata-is-shown-to-creators-and-to-public-unlisted-viewers-e-g-frontend-src-pages-modmanagepage-tsx-and-frontend-src-pages-publicmodpage-tsx",
+      "featureTitle": "Update mod displays to surface the stored game name and the new prompt field anywhere mod metadata is shown to creators and to public unlisted viewers (e.g., frontend/src/pages/ModManagePage.tsx and frontend/src/pages/PublicModPage.tsx).",
+      "files": [
+        "frontend/src/pages/ModManagePage.tsx",
+        "frontend/src/pages/PublicModPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-frontend-to-backend-query-mutation-layer-frontend-src-hooks-usequeries-ts-and-the-generated-frontend-backend-types-frontend-src-backend-typings-so-the-createmod-mutation-and-moddata-type-include-the-new-fields-and-compile-cleanly",
+      "featureTitle": "Update the frontend-to-backend query/mutation layer (frontend/src/hooks/useQueries.ts) and the generated frontend backend types (frontend/src/backend typings) so the createMod mutation and ModData type include the new fields and compile cleanly.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-15"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

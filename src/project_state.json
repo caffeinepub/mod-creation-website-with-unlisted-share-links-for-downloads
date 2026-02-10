@@ -1,0 +1,163 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Website for creating and sharing video game mods: users pick a game, create mods through an easy in-website flow, and mods are downloadable only via direct/unlisted links.",
+  "architectural_notes": [
+    "Mod download access should be restricted to possession of the direct/unlisted mod link (treat as unlisted content access model).",
+    "Mod-creation flow change: use a freeform game name text input instead of selecting from an existing games list."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-internet-identity-sign-in-and-a-creator-only-area-so-users-can-create-and-manage-their-own-mods-while-allowing-anyone-with-a-direct-mod-link-to-view-download-that-mod-without-signing-in",
+      "title": "Implement Internet Identity sign-in and a creator-only area so users can create and manage their own mods, while allowing anyone with a direct mod link to view/download that mod without signing in.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-guided-easy-mod-creation-flow-in-the-website-1-select-a-game-choose-an-existing-game-or-create-a-new-game-entry-2-enter-mod-metadata-title-description-version-3-add-mod-content-via-file-uploads-and-or-creating-simple-text-files-in-browser-4-publish-the-mod-to-generate-an-unlisted-share-link",
+      "title": "Create a guided, easy mod-creation flow in the website: (1) select a game (choose an existing game or create a new game entry), (2) enter mod metadata (title, description, version), (3) add mod content via file uploads and/or creating simple text files in-browser, (4) publish the mod to generate an unlisted share link.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-unlisted-access-control-each-published-mod-must-have-a-hard-to-guess-unlisted-identifier-used-in-the-share-link-the-share-link-must-allow-read-only-access-view-metadata-download-files-without-requiring-authentication",
+      "title": "Implement unlisted access control: each published mod must have a hard-to-guess unlisted identifier used in the share link; the share link must allow read-only access (view metadata + download files) without requiring authentication.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-creator-dashboard-where-signed-in-users-can-see-their-mods-open-an-individual-mod-management-page-add-remove-files-edit-metadata-and-copy-the-unlisted-share-link",
+      "title": "Add a creator dashboard where signed-in users can see their mods, open an individual mod management page, add/remove files, edit metadata, and copy the unlisted share link.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-visual-theme-across-the-app-colors-typography-spacing-and-component-styling-with-a-distinct-style-appropriate-for-a-modding-community-keep-all-user-facing-ui-text-in-english",
+      "title": "Apply a coherent visual theme across the app (colors, typography, spacing, and component styling) with a distinct style appropriate for a modding community; keep all user-facing UI text in English.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-core-pages-and-routing-for-landing-page-brief-explanation-call-to-action-sign-in-creator-dashboard-mod-creation-flow-and-public-mod-view-page-accessed-via-unlisted-link",
+      "title": "Create core pages and routing for: Landing page (brief explanation + call to action), Sign-in/Creator Dashboard, Mod Creation flow, and Public Mod View page accessed via unlisted link.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-basic-validation-and-guardrails-for-mod-creation-and-file-handling-required-fields-reasonable-limits-clear-error-messages-suitable-for-storing-data-directly-on-the-canister",
+      "title": "Add basic validation and guardrails for mod creation and file handling (required fields, reasonable limits, clear error messages) suitable for storing data directly on the canister.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-generated-static-image-assets-in-the-frontend-placed-under-frontend-public-assets-generated-for-branding-on-the-landing-page-and-in-the-app-header",
+      "title": "Render generated static image assets in the frontend (placed under frontend/public/assets/generated) for branding on the landing page and in the app header.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-mod-creation-wizard-frontend-src-pages-modcreatewizardpage-tsx-to-replace-the-existing-game-selector-create-new-game-dialog-with-a-single-required-freeform-text-input-where-the-creator-types-the-game-name-the-mod-is-for",
+      "title": "Update the mod creation wizard (frontend/src/pages/ModCreateWizardPage.tsx) to replace the existing game selector + “Create New Game” dialog with a single required freeform text input where the creator types the game name the mod is for.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-required-prompt-field-to-the-mod-creation-flow-wizard-details-step-so-the-creator-can-write-a-prompt-for-the-mod-and-include-this-value-when-publishing-the-mod",
+      "title": "Add a new required \"prompt\" field to the mod creation flow (wizard details step) so the creator can write a prompt for the mod, and include this value when publishing the mod.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-validation-helpers-to-validate-the-new-freeform-game-name-input-and-the-new-prompt-field-and-wire-those-validations-into-the-wizard-step-gating-canproceedfromgame-canproceedfromdetails",
+      "title": "Update frontend validation helpers to validate the new freeform game name input and the new prompt field, and wire those validations into the wizard step gating (canProceedFromGame, canProceedFromDetails).",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-mod-displays-to-surface-the-stored-game-name-and-the-new-prompt-field-anywhere-mod-metadata-is-shown-to-creators-and-to-public-unlisted-viewers-e-g-frontend-src-pages-modmanagepage-tsx-and-frontend-src-pages-publicmodpage-tsx",
+      "title": "Update mod displays to surface the stored game name and the new prompt field anywhere mod metadata is shown to creators and to public unlisted viewers (e.g., frontend/src/pages/ModManagePage.tsx and frontend/src/pages/PublicModPage.tsx).",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-to-backend-query-mutation-layer-frontend-src-hooks-usequeries-ts-and-the-generated-frontend-backend-types-frontend-src-backend-typings-so-the-createmod-mutation-and-moddata-type-include-the-new-fields-and-compile-cleanly",
+      "title": "Update the frontend-to-backend query/mutation layer (frontend/src/hooks/useQueries.ts) and the generated frontend backend types (frontend/src/backend typings) so the createMod mutation and ModData type include the new fields and compile cleanly.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create mod-creation website where users select a game and create mods through the website (manual/easy workflow).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Allow users to download other people's mods only via direct/unlisted link access (no public browsing required).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Implement backend data models and APIs to store games, mods, and mod files (including file contents) in the single Motoko actor, and enforce ownership so only the mod creator can edit/update their mod and its files.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "In mod-creation flow, replace the existing game selector with a freeform text field for entering the game name.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add a \"prompt\" text field to the mod-creation flow (additional mod input field).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Adjust the backend mod data model and APIs (backend/main.mo) to support storing a freeform game name on each mod instead of requiring that the game already exists in the games map.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Mod-creation website with unlisted share links for downloads",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

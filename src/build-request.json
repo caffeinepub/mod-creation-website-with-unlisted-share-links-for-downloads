@@ -1,0 +1,144 @@
+{
+  "kind": "build_request",
+  "title": "Replace game selector with freeform game text field and add mod prompt field",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-10",
+      "text": "Update the mod creation wizard (frontend/src/pages/ModCreateWizardPage.tsx) to replace the existing game selector + “Create New Game” dialog with a single required freeform text input where the creator types the game name the mod is for.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Add a text field for when it asks them what game it's for"
+        ]
+      },
+      "acceptanceCriteria": [
+        "In the wizard step currently labeled “Game”, the UI shows a text input (not a dropdown/select) for entering the game name.",
+        "The “Create New Game” dialog and any dependency on listing/creating games in this wizard step are removed from the UI.",
+        "The Next button remains disabled until a non-empty game name is provided.",
+        "All user-facing text remains in English."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Add a new required \"prompt\" field to the mod creation flow (wizard details step) so the creator can write a prompt for the mod, and include this value when publishing the mod.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Yes and also have write a prompt for the mod"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The mod details UI includes a clearly labeled Prompt field (required) with validation feedback consistent with existing fields.",
+        "Publishing a mod includes the prompt value in the createMod call from the frontend to the backend.",
+        "Backend stores the prompt on the mod record and returns it in mod queries (creator view and unlisted/public view).",
+        "If prompt is missing/empty when creating a mod, the backend rejects the request with a clear error message."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Update frontend validation helpers to validate the new freeform game name input and the new prompt field, and wire those validations into the wizard step gating (canProceedFromGame, canProceedFromDetails).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Add a text field for when it asks them what game it's for",
+          "Yes and also have write a prompt for the mod"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Game step validation checks the typed game name (not a selected game ID).",
+        "Details step validation includes prompt validation in addition to title/version/description.",
+        "Validation errors are shown using the same patterns as existing fields (message text in English)."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Adjust the backend mod data model and APIs (backend/main.mo) to support storing a freeform game name on each mod instead of requiring that the game already exists in the games map.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Add a text field for when it asks them what game it's for"
+        ]
+      },
+      "acceptanceCriteria": [
+        "createMod accepts and stores the game name the creator typed, and validates it is non-empty.",
+        "createMod no longer rejects mod creation solely because the game is not found in the games map.",
+        "getMod, getModByUnlistedId, listModsForCreator, and any other mod-returning methods include the stored game name in the returned ModData.",
+        "All existing access control behavior for mod creation and viewing remains unchanged."
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "text": "Update mod displays to surface the stored game name and the new prompt field anywhere mod metadata is shown to creators and to public unlisted viewers (e.g., frontend/src/pages/ModManagePage.tsx and frontend/src/pages/PublicModPage.tsx).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Add a text field for when it asks them what game it's for",
+          "Yes and also have write a prompt for the mod"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Public mod page shows the mod’s game name and prompt as read-only metadata (in addition to existing title/version/description/files).",
+        "Creator manage page shows the mod’s game name and prompt as read-only metadata (in addition to existing metadata).",
+        "All user-facing text remains in English."
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "text": "Update the frontend-to-backend query/mutation layer (frontend/src/hooks/useQueries.ts) and the generated frontend backend types (frontend/src/backend typings) so the createMod mutation and ModData type include the new fields and compile cleanly.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Proceed"
+        ]
+      },
+      "acceptanceCriteria": [
+        "useCreateMod mutation sends the new fields required by the backend createMod method.",
+        "TypeScript types used by the frontend include the new ModData fields (prompt and the stored game name field) and the app compiles without type errors.",
+        "Existing queries and pages using ModData are updated as needed to account for the added fields."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Keep all user-facing UI text in English."
+  ],
+  "nonGoals": [
+    "Add sign-in methods for Xbox, PlayStation, Nintendo, or other third-party identity providers (only Internet Identity is supported).",
+    "Build a full video game creation/builder tool.",
+    "Introduce external databases or non-Motoko backend services."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

@@ -1,2 +1,3 @@
-# mod-creation-website-with-unlisted-share-links-for-downloads
-Exported from Caffeine project: Mod-creation website with unlisted share links for downloads
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

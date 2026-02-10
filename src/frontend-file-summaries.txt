@@ -1,0 +1,21 @@
+{
+  "frontend/src/App.tsx": "Main application component with TanStack Router setup, defining all routes (landing, sign-in, dashboard, mod creation wizard, mod management, and public mod view) and wrapping them with ThemeProvider and AppLayout.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including user profiles and mods (create with gameName and prompt, list, get by ID, get by unlisted ID, update files) with proper cache invalidation.",
+  "frontend/src/lib/unlisted.ts": "Utility functions for generating hard-to-guess unlisted identifiers (32-character random strings) and constructing shareable URLs for public mod access.",
+  "frontend/src/lib/validation.ts": "Validation functions for mod creation fields (title, description, version, game name, and prompt) returning structured validation results with user-friendly error messages.",
+  "frontend/src/lib/fileLimits.ts": "Constants and validation functions for file upload limits (max 10 files, max 5 text files, 2MB per file) with file size formatting utilities.",
+  "frontend/src/components/layout/AppLayout.tsx": "Main layout component with header (logo, navigation, auth button), footer (caffeine.ai attribution), and responsive navigation that adapts to authentication state.",
+  "frontend/src/components/auth/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup, prompting for display name and calling saveCallerUserProfile with proper loading states, using showCloseButton={false} to prevent dismissal.",
+  "frontend/src/components/auth/RequireAuth.tsx": "Route guard component that checks authentication status and displays access-denied message with sign-in link for unauthenticated users.",
+  "frontend/src/components/mods/FileComposer.tsx": "Reusable component for managing mod files with upload input, in-browser text file creation dialog, file list display, and remove functionality respecting file count limits.",
+  "frontend/src/components/mods/ModShareLink.tsx": "Component displaying the unlisted share URL in a card with copy-to-clipboard functionality and explanatory text about unlisted access.",
+  "frontend/src/components/mods/ModEditorForm.tsx": "Form component for editing mod metadata (title, version, description, and prompt) with real-time validation feedback and error display for all required fields.",
+  "frontend/src/pages/LandingPage.tsx": "Landing page with hero image, feature cards (easy creation, unlisted sharing, full control), how-it-works section, and call-to-action buttons for sign-in.",
+  "frontend/src/pages/SignInPage.tsx": "Sign-in page with Internet Identity login button, automatic profile setup modal for first-time users, and redirect to dashboard after successful authentication.",
+  "frontend/src/pages/DashboardPage.tsx": "Creator dashboard showing user's mods in a grid with manage buttons, empty state with create prompt, and create new mod button in header; uses non-null assertion for principal since RequireAuth ensures identity is available.",
+  "frontend/src/pages/ModCreateWizardPage.tsx": "Multi-step mod creation wizard with freeform game name input (step 1), mod details including prompt field (step 2), file upload (step 3), and success screen with unlisted link generation.",
+  "frontend/src/pages/ModManagePage.tsx": "Mod management page for creators showing mod info (including game name and prompt as read-only metadata), share link, and file management interface with save functionality.",
+  "frontend/src/pages/PublicModPage.tsx": "Public mod view page accessible via unlisted link, displaying mod metadata (game name, description, prompt) and files with individual and bulk download buttons, no authentication required.",
+  "frontend/src/index.css": "Global styles with industrial modding theme using OKLCH color system, featuring steel-blue palette in light mode and forge-inspired dark mode with consistent spacing and typography.",
+  "frontend/tailwind.config.js": "Tailwind configuration with extended theme for industrial aesthetic, custom font families (Inter, JetBrains Mono), and additional shadow utilities for depth."
+}

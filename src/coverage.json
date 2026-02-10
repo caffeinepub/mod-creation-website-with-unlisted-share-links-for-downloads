@@ -1,0 +1,111 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T01:36:10.076Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 6,
+    "implemented": 5,
+    "items": [
+      {
+        "id": "REQ-10",
+        "summary": "Update the mod creation wizard (frontend/src/pages/ModCreateWizardPage.tsx) to replace the existing game selector + “Create New Game” dialog with a single required freeform text input where the creator types the game name the mod is for.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ModCreateWizardPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ModCreateWizardPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-11",
+        "summary": "Add a new required \"prompt\" field to the mod creation flow (wizard details step) so the creator can write a prompt for the mod, and include this value when publishing the mod.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ModCreateWizardPage.tsx",
+          "frontend/src/components/mods/ModEditorForm.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ModCreateWizardPage.tsx",
+          "frontend/src/components/mods/ModEditorForm.tsx"
+        ]
+      },
+      {
+        "id": "REQ-12",
+        "summary": "Update frontend validation helpers to validate the new freeform game name input and the new prompt field, and wire those validations into the wizard step gating (canProceedFromGame, canProceedFromDetails).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/validation.ts",
+          "frontend/src/pages/ModCreateWizardPage.tsx",
+          "frontend/src/components/mods/ModEditorForm.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/lib/validation.ts",
+          "frontend/src/pages/ModCreateWizardPage.tsx",
+          "frontend/src/components/mods/ModEditorForm.tsx"
+        ]
+      },
+      {
+        "id": "REQ-13",
+        "summary": "Adjust the backend mod data model and APIs (backend/main.mo) to support storing a freeform game name on each mod instead of requiring that the game already exists in the games map.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-14",
+        "summary": "Update mod displays to surface the stored game name and the new prompt field anywhere mod metadata is shown to creators and to public unlisted viewers (e.g., frontend/src/pages/ModManagePage.tsx and frontend/src/pages/PublicModPage.tsx).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/PublicModPage.tsx",
+          "frontend/src/pages/ModManagePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/PublicModPage.tsx",
+          "frontend/src/pages/ModManagePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-15",
+        "summary": "Update the frontend-to-backend query/mutation layer (frontend/src/hooks/useQueries.ts) and the generated frontend backend types (frontend/src/backend typings) so the createMod mutation and ModData type include the new fields and compile cleanly.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/backend.d.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/backend.d.ts"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "build-template/README.md",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/mods/ModEditorForm.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/lib/validation.ts",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/ModCreateWizardPage.tsx",
+    "frontend/src/pages/ModManagePage.tsx",
+    "frontend/src/pages/PublicModPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}
