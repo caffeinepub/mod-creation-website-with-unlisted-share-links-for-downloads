@@ -22,6 +22,7 @@ export interface ModData {
     creator: Principal;
     description: string;
     version: string;
+    enabled: boolean;
     gameName: string;
     prompt: string;
     unlistedId: string;
@@ -38,11 +39,13 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getMod(modId: string): Promise<ModData>;
     getModByUnlistedId(unlistedId: string): Promise<ModData>;
+    getModEnabledState(modId: string): Promise<boolean>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     listModFiles(modId: string): Promise<Array<ModFile>>;
     listModsForCreator(creator: Principal): Promise<Array<ModData>>;
     listModsForGame(gameName: string): Promise<Array<ModData>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setModEnabledState(modId: string, enabled: boolean): Promise<void>;
     updateModFiles(modId: string, newFiles: Array<ModFile>): Promise<void>;
 }

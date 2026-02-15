@@ -96,6 +96,7 @@ export function useGetModByUnlistedId(unlistedId: string) {
       return actor.getModByUnlistedId(unlistedId);
     },
     enabled: !!actor && !actorFetching && !!unlistedId,
+    retry: false,
   });
 }
 
@@ -124,6 +125,42 @@ export function useUpdateModFiles() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['mod', variables.modId] });
       queryClient.invalidateQueries({ queryKey: ['mods'] });
+    },
+  });
+}
+
+// Mod Enabled State Queries
+export function useGetModEnabledState(modId: string) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['mod', modId, 'enabled'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getModEnabledState(modId);
+    },
+    enabled: !!actor && !actorFetching && !!modId,
+    retry: 1,
+  });
+}
+
+export function useSetModEnabledState() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ modId, enabled }: { modId: string; enabled: boolean }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.setModEnabledState(modId, enabled);
+    },
+    onSuccess: (_, variables) => {
+      // Immediately set the cached value to ensure UI reflects backend state
+      queryClient.setQueryData(['mod', variables.modId, 'enabled'], variables.enabled);
+      
+      // Invalidate related queries to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['mod', variables.modId] });
+      queryClient.invalidateQueries({ queryKey: ['mods'] });
+      queryClient.invalidateQueries({ queryKey: ['mod', 'unlisted'] });
     },
   });
 }

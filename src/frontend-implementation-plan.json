@@ -1,112 +1,67 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Freeform game name + required prompt field in mod creation and mod metadata displays",
+  "title": "Persisted mod enabled/disabled toggle UI and disabled-mod handling",
   "requirements": [
     {
-      "id": "REQ-10",
-      "summary": "Replace the game selector and Create New Game dialog in the mod creation wizard with a single required freeform game name text input.",
+      "id": "REQ-1",
+      "summary": "Ensure the mod enabled/disabled state shown in the UI is fetched from backend state (not client-only) and updates after backend-confirmed changes.",
       "acceptanceCriteria": [
-        "In the wizard step currently labeled “Game”, the UI shows a text input (not a dropdown/select) for entering the game name.",
-        "The “Create New Game” dialog and any dependency on listing/creating games in this wizard step are removed from the UI.",
-        "The Next button remains disabled until a non-empty game name is provided.",
-        "All user-facing text remains in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ModCreateWizardPage.tsx",
-          "operation": "modify",
-          "description": "Replace the Select-based game picker and the Create New Game dialog with a required freeform Input for game name; remove state and logic tied to selectedGameId/new game creation and remove wizard dependencies on useListGames/useCreateGame; update wizard copy to English text appropriate for entering a game name."
-        }
-      ]
-    },
-    {
-      "id": "REQ-11",
-      "summary": "Add a required Prompt field to the mod details step and include it in the publish/createMod call payload.",
-      "acceptanceCriteria": [
-        "The mod details UI includes a clearly labeled Prompt field (required) with validation feedback consistent with existing fields.",
-        "Publishing a mod includes the prompt value in the createMod call from the frontend to the backend.",
-        "Backend stores the prompt on the mod record and returns it in mod queries (creator view and unlisted/public view).",
-        "If prompt is missing/empty when creating a mod, the backend rejects the request with a clear error message."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ModCreateWizardPage.tsx",
-          "operation": "modify",
-          "description": "Add wizard state for prompt; pass prompt into the details step UI; ensure publishing passes prompt and freeform gameName into useCreateMod.mutateAsync in addition to existing required fields."
-        },
-        {
-          "path": "frontend/src/components/mods/ModEditorForm.tsx",
-          "operation": "modify",
-          "description": "Extend the ModEditorForm to render a required Prompt field (clearly labeled in English) with validation feedback styling/patterns consistent with existing Title/Version/Description fields."
-        }
-      ]
-    },
-    {
-      "id": "REQ-12",
-      "summary": "Add/adjust frontend validation helpers for the freeform game name and required prompt, and wire them into wizard step gating.",
-      "acceptanceCriteria": [
-        "Game step validation checks the typed game name (not a selected game ID).",
-        "Details step validation includes prompt validation in addition to title/version/description.",
-        "Validation errors are shown using the same patterns as existing fields (message text in English)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/lib/validation.ts",
-          "operation": "modify",
-          "description": "Add validation helpers for freeform game name and mod prompt (both required, non-empty) with English error messages; keep return shape consistent with existing ValidationResult usage."
-        },
-        {
-          "path": "frontend/src/pages/ModCreateWizardPage.tsx",
-          "operation": "modify",
-          "description": "Update canProceedFromGame to validate the typed gameName (not a game ID) and update canProceedFromDetails to include prompt validation alongside title/version/description; ensure step gating and displayed error messages follow existing patterns."
-        },
-        {
-          "path": "frontend/src/components/mods/ModEditorForm.tsx",
-          "operation": "modify",
-          "description": "Wire the new prompt validation helper into the form’s live validation behavior so prompt errors display consistently with other fields."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Display the stored game name and prompt as read-only metadata in creator and public mod views wherever mod metadata is shown.",
-      "acceptanceCriteria": [
-        "Public mod page shows the mod’s game name and prompt as read-only metadata (in addition to existing title/version/description/files).",
-        "Creator manage page shows the mod’s game name and prompt as read-only metadata (in addition to existing metadata).",
-        "All user-facing text remains in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/PublicModPage.tsx",
-          "operation": "modify",
-          "description": "Add read-only metadata sections for the mod’s gameName and prompt (English labels) alongside existing title/version/description/files; ensure prompt is shown in a readable, non-editable format."
-        },
-        {
-          "path": "frontend/src/pages/ModManagePage.tsx",
-          "operation": "modify",
-          "description": "Add read-only metadata for the mod’s gameName and prompt within the Mod Information card (English labels), without introducing edit controls for these fields."
-        }
-      ]
-    },
-    {
-      "id": "REQ-15",
-      "summary": "Update the frontend query/mutation layer and frontend backend typings so createMod and ModData include prompt and stored game name and compile cleanly.",
-      "acceptanceCriteria": [
-        "useCreateMod mutation sends the new fields required by the backend createMod method.",
-        "TypeScript types used by the frontend include the new ModData fields (prompt and the stored game name field) and the app compiles without type errors.",
-        "Existing queries and pages using ModData are updated as needed to account for the added fields."
+        "When a creator toggles a mod to Disabled on Device A, then opens the mod management page on Device B, the toggle loads as Disabled without relying on local storage.",
+        "When a creator toggles a mod to Enabled on Device A, then opens the public/unlisted link, the mod is accessible again.",
+        "The enabled state is fetched from the backend and not derived from client-only state."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update useCreateMod to accept prompt and gameName and call actor.createMod with the correct argument order from the generated backend typings; remove or refactor game listing/creation hooks/imports that are no longer needed after the wizard change so the file compiles cleanly."
+          "description": "Update the enabled-state query/mutation wiring to keep React Query cache in sync with backend state (e.g., set the ['mod', modId, 'enabled'] cached value on successful mutation and continue invalidating dependent queries) so toggles reliably reflect the backend-persisted enabled state across reloads/devices."
         },
         {
-          "path": "frontend/src/backend.d.ts",
+          "path": "frontend/src/components/mods/ModEnabledToggle.tsx",
           "operation": "modify",
-          "description": "Align generated frontend backend typings with the expected createMod signature and ModData fields (gameName and prompt) used by the updated UI and hooks, ensuring TypeScript compilation succeeds."
+          "description": "Ensure the toggle UI always renders from the backend-fetched enabled state and refreshes the displayed state after backend confirmation (e.g., rely on updated query cache or refetch), without introducing any local-storage persistence."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Render a mod on/off toggle under the share link section that loads current enabled state from backend and updates it via backend mutation with loading + success/error feedback.",
+      "acceptanceCriteria": [
+        "The mod management page shows a toggle below the share link area for the current mod.",
+        "The toggle shows a loading state until the enabled value is fetched from the backend.",
+        "Toggling shows success and error feedback in English and updates the displayed state after the backend confirms the change."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ModManagePage.tsx",
+          "operation": "modify",
+          "description": "Confirm the existing toggle placement remains directly below the share link section and that the correct modId is passed through for backend-backed loading/mutation (no new routes/pages)."
+        },
+        {
+          "path": "frontend/src/components/mods/ModEnabledToggle.tsx",
+          "operation": "modify",
+          "description": "Add explicit loading and error UI states for fetching enabled status (e.g., show an English inline error message + optional retry when the backend read fails), and ensure mutation pending state is clearly represented while preventing double-toggles; keep English success/error toasts and update the displayed state only after backend confirmation."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Harden enabled-state hooks to support the toggle UX: expose needed error/refetch signals from the enabled-state query (if required by the UI changes) and ensure the enabled-state mutation updates/invalidate queries so the UI reflects the backend-confirmed value."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "On the public mod page, show a clear English disabled/unavailable message and hide download/share UI when backend denies access for disabled mods.",
+      "acceptanceCriteria": [
+        "Opening a disabled mod’s unlisted link shows a clear English message indicating the mod is unavailable/disabled.",
+        "The page does not render download/share actions when the mod cannot be fetched due to being disabled."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/PublicModPage.tsx",
+          "operation": "modify",
+          "description": "Improve disabled-mod detection and messaging when getModByUnlistedId fails: treat backend denial/trap messages indicating disabled/unavailable as the disabled case (not only 'Mod not found'), render a clear English 'mod unavailable/disabled' message, and ensure no download/share actions are rendered when mod data is not available."
         }
       ]
     }

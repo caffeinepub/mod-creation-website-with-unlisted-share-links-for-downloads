@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import ModCreateWizardPage from './pages/ModCreateWizardPage';
 import ModManagePage from './pages/ModManagePage';
 import PublicModPage from './pages/PublicModPage';
+import BedrockFileOpenerPage from './pages/BedrockFileOpenerPage';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -56,6 +57,12 @@ const publicModRoute = createRoute({
   component: PublicModPage,
 });
 
+const bedrockOpenerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/open-bedrock',
+  component: BedrockFileOpenerPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   signInRoute,
@@ -63,6 +70,7 @@ const routeTree = rootRoute.addChildren([
   createModRoute,
   manageModRoute,
   publicModRoute,
+  bedrockOpenerRoute,
 ]);
 
 const router = createRouter({ routeTree });

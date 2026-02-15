@@ -3,6 +3,7 @@ import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Array "mo:core/Array";
+import Iter "mo:core/Iter";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Migration "migration";
@@ -29,6 +30,7 @@ actor {
     gameName : Text;
     files : [ModFile];
     unlistedId : Text;
+    enabled : Bool;
   };
 
   let mods = Map.empty<Text, ModData>();
@@ -37,9 +39,24 @@ actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
+  public query ({ caller }) func getModByUnlistedId(unlistedId : Text) : async ModData {
+    if (unlistedId == "") {
+      Runtime.trap("Mod not found");
+    };
+
+    switch (mods.values().find(func(mod) { mod.unlistedId == unlistedId })) {
+      case (?mod) {
+        if (mod.enabled) { mod } else {
+          Runtime.trap("Mod not found");
+        };
+      };
+      case (null) { Runtime.trap("Mod not found") };
+    };
+  };
+
   // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can access profiles");
     };
     userProfiles.get(caller);
@@ -53,7 +70,7 @@ actor {
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.add(caller, profile);
@@ -70,7 +87,6 @@ actor {
     files : [ModFile],
     unlistedId : Text,
   ) : async () {
-    // Only authenticated users can create mods
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can create mods");
     };
@@ -82,12 +98,6 @@ actor {
     if (files.size() == 0) {
       Runtime.trap("At least one mod file is required");
     };
-
-    // The check for game existence has been removed from the
-    // new system since mods reference the game by name
-    // if (games.get(gameName) == null) {
-    //   Runtime.trap("Game not found");
-    // };
 
     if (mods.containsKey(modId)) {
       Runtime.trap("Mod with this ID already exists");
@@ -105,14 +115,14 @@ actor {
       gameName;
       files = verifiedFiles;
       unlistedId;
+      enabled = true;
     };
 
     mods.add(modId, modData);
   };
 
   public shared ({ caller }) func updateModFiles(modId : Text, newFiles : [ModFile]) : async () {
-    // Only authenticated users can update mods
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only authenticated users can update mods");
     };
 
@@ -139,6 +149,7 @@ actor {
           gameName = modData.gameName;
           files = verifiedFiles;
           unlistedId = modData.unlistedId;
+          enabled = modData.enabled;
         };
 
         mods.add(modId, updatedMod);
@@ -146,9 +157,58 @@ actor {
     };
   };
 
+  public shared ({ caller }) func setModEnabledState(modId : Text, enabled : Bool) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only authenticated users can update mods");
+    };
+
+    if (modId == "") { Runtime.trap("Mod not found") };
+
+    switch (mods.get(modId)) {
+      case (null) { Runtime.trap("Mod not found") };
+      case (?modData) {
+        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Only the mod creator or admin can toggle this mod");
+        };
+
+        let updatedMod : ModData = {
+          id = modData.id;
+          title = modData.title;
+          description = modData.description;
+          version = modData.version;
+          prompt = modData.prompt;
+          creator = modData.creator;
+          gameName = modData.gameName;
+          files = modData.files;
+          unlistedId = modData.unlistedId;
+          enabled;
+        };
+
+        mods.add(modId, updatedMod);
+      };
+    };
+  };
+
+  public query ({ caller }) func getModEnabledState(modId : Text) : async Bool {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only authenticated users can check mod state");
+    };
+
+    if (modId == "") { Runtime.trap("Mod not found") };
+
+    switch (mods.get(modId)) {
+      case (null) { Runtime.trap("Mod not found") };
+      case (?modData) {
+        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Only the mod creator or admin can check this mod's state");
+        };
+        modData.enabled;
+      };
+    };
+  };
+
   public query ({ caller }) func getMod(modId : Text) : async ModData {
-    // Only the mod creator can access mod by direct ID
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only authenticated users can access mods by ID");
     };
 
@@ -163,39 +223,16 @@ actor {
     };
   };
 
-  public query ({ caller }) func getModByUnlistedId(unlistedId : Text) : async ModData {
-    // Public access via unlisted ID - no authentication required
-    // This is the share link feature
-    let iter = mods.values();
-    let modOpt = iter.find(
-      func(mod) {
-        mod.unlistedId == unlistedId;
-      }
-    );
-
-    switch (modOpt) {
-      case (?modData) { modData };
-      case (null) { Runtime.trap("Mod not found") };
-    };
-  };
-
   public query ({ caller }) func listModsForGame(gameName : Text) : async [ModData] {
-    // Only authenticated users can list mods, and only their own
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only authenticated users can list mods");
     };
 
-    let iter = mods.values().filter(
-      func(mod) {
-        mod.gameName == gameName and mod.creator == caller;
-      }
-    );
-    iter.toArray();
+    mods.values().filter(func(mod) { mod.gameName == gameName and mod.creator == caller }).toArray();
   };
 
   public query ({ caller }) func listModsForCreator(creator : Principal) : async [ModData] {
-    // Users can only list their own mods, admins can list any user's mods
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only authenticated users can list mods");
     };
 
@@ -203,17 +240,11 @@ actor {
       Runtime.trap("Unauthorized: Can only list your own mods");
     };
 
-    let iter = mods.values().filter(
-      func(mod) {
-        mod.creator == creator;
-      }
-    );
-    iter.toArray();
+    mods.values().filter(func(mod) { mod.creator == creator }).toArray();
   };
 
   public query ({ caller }) func listModFiles(modId : Text) : async [ModFile] {
-    // Only the mod creator can list files by mod ID
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only authenticated users can list mod files");
     };
 
@@ -246,4 +277,3 @@ actor {
     files;
   };
 };
-

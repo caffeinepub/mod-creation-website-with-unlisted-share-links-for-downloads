@@ -34,12 +34,12 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-8 md:py-12">
       <div className="max-w-md mx-auto">
         <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome to ModForge</CardTitle>
-            <CardDescription>
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-xl md:text-2xl">Welcome to Grylie's mods</CardTitle>
+            <CardDescription className="text-sm md:text-base">
               Sign in with Internet Identity to start creating and sharing mods
             </CardDescription>
           </CardHeader>

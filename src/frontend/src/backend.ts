@@ -104,6 +104,7 @@ export interface ModData {
     creator: Principal;
     description: string;
     version: string;
+    enabled: boolean;
     gameName: string;
     prompt: string;
     unlistedId: string;
@@ -121,12 +122,14 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getMod(modId: string): Promise<ModData>;
     getModByUnlistedId(unlistedId: string): Promise<ModData>;
+    getModEnabledState(modId: string): Promise<boolean>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     listModFiles(modId: string): Promise<Array<ModFile>>;
     listModsForCreator(creator: Principal): Promise<Array<ModData>>;
     listModsForGame(gameName: string): Promise<Array<ModData>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    setModEnabledState(modId: string, enabled: boolean): Promise<void>;
     updateModFiles(modId: string, newFiles: Array<ModFile>): Promise<void>;
 }
 import type { UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
@@ -230,6 +233,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getModEnabledState(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getModEnabledState(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getModEnabledState(arg0);
+            return result;
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -311,6 +328,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async setModEnabledState(arg0: string, arg1: boolean): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setModEnabledState(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setModEnabledState(arg0, arg1);
             return result;
         }
     }

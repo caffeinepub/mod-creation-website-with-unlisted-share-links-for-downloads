@@ -14,17 +14,17 @@ function DashboardContent() {
   const { data: mods, isLoading } = useListModsForCreator(principal!);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
+            <p className="text-sm md:text-base text-muted-foreground mt-1">
               Welcome back, {userProfile?.name || 'Creator'}
             </p>
           </div>
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="w-full sm:w-auto">
             <Link to="/create">
               <Plus className="h-4 w-4 mr-2" />
               Create New Mod
@@ -35,7 +35,7 @@ function DashboardContent() {
         {/* Mods List */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Your Mods</h2>
+            <h2 className="text-lg md:text-xl font-semibold">Your Mods</h2>
             {mods && mods.length > 0 && (
               <Badge variant="secondary">{mods.length} mod(s)</Badge>
             )}
@@ -47,14 +47,14 @@ function DashboardContent() {
               <p className="mt-4 text-muted-foreground">Loading your mods...</p>
             </div>
           ) : mods && mods.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {mods.map((mod) => (
                 <Card key={mod.id} className="hover:border-primary/50 transition-colors">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg truncate">{mod.title}</CardTitle>
-                        <CardDescription className="mt-1">
+                        <CardTitle className="text-base md:text-lg truncate">{mod.title}</CardTitle>
+                        <CardDescription className="mt-1 text-sm">
                           Version {mod.version}
                         </CardDescription>
                       </div>
@@ -88,7 +88,7 @@ function DashboardContent() {
                     Create your first mod to get started
                   </p>
                 </div>
-                <Button asChild>
+                <Button asChild className="w-full sm:w-auto">
                   <Link to="/create">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Mod

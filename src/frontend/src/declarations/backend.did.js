@@ -26,6 +26,7 @@ export const ModData = IDL.Record({
   'creator' : IDL.Principal,
   'description' : IDL.Text,
   'version' : IDL.Text,
+  'enabled' : IDL.Bool,
   'gameName' : IDL.Text,
   'prompt' : IDL.Text,
   'unlistedId' : IDL.Text,
@@ -52,6 +53,7 @@ export const idlService = IDL.Service({
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getMod' : IDL.Func([IDL.Text], [ModData], ['query']),
   'getModByUnlistedId' : IDL.Func([IDL.Text], [ModData], ['query']),
+  'getModEnabledState' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -66,6 +68,7 @@ export const idlService = IDL.Service({
     ),
   'listModsForGame' : IDL.Func([IDL.Text], [IDL.Vec(ModData)], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'setModEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
   'updateModFiles' : IDL.Func([IDL.Text, IDL.Vec(ModFile)], [], []),
 });
 
@@ -90,6 +93,7 @@ export const idlFactory = ({ IDL }) => {
     'creator' : IDL.Principal,
     'description' : IDL.Text,
     'version' : IDL.Text,
+    'enabled' : IDL.Bool,
     'gameName' : IDL.Text,
     'prompt' : IDL.Text,
     'unlistedId' : IDL.Text,
@@ -116,6 +120,7 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getMod' : IDL.Func([IDL.Text], [ModData], ['query']),
     'getModByUnlistedId' : IDL.Func([IDL.Text], [ModData], ['query']),
+    'getModEnabledState' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -130,6 +135,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'listModsForGame' : IDL.Func([IDL.Text], [IDL.Vec(ModData)], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'setModEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
     'updateModFiles' : IDL.Func([IDL.Text, IDL.Vec(ModFile)], [], []),
   });
 };

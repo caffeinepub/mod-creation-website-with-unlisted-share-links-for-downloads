@@ -17,6 +17,7 @@ export interface ModData {
   'creator' : Principal,
   'description' : string,
   'version' : string,
+  'enabled' : boolean,
   'gameName' : string,
   'prompt' : string,
   'unlistedId' : string,
@@ -41,12 +42,14 @@ export interface _SERVICE {
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getMod' : ActorMethod<[string], ModData>,
   'getModByUnlistedId' : ActorMethod<[string], ModData>,
+  'getModEnabledState' : ActorMethod<[string], boolean>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listModFiles' : ActorMethod<[string], Array<ModFile>>,
   'listModsForCreator' : ActorMethod<[Principal], Array<ModData>>,
   'listModsForGame' : ActorMethod<[string], Array<ModData>>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'setModEnabledState' : ActorMethod<[string, boolean], undefined>,
   'updateModFiles' : ActorMethod<[string, Array<ModFile>], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

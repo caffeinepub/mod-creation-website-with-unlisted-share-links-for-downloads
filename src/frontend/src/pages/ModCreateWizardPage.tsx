@@ -16,185 +16,272 @@ import { validateModTitle, validateGameName, validateModVersion, validateModDesc
 import { validateFileCount } from '../lib/fileLimits';
 import type { ModFile } from '../backend';
 
-type Step = 'game' | 'details' | 'files' | 'success';
+type Step = 1 | 2 | 3 | 4;
 
-function ModCreateWizardContent() {
+interface ModFormData {
+  gameName: string;
+  title: string;
+  description: string;
+  prompt: string;
+  version: string;
+  files: ModFile[];
+}
+
+function CreateWizardContent() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('game');
-  const [gameName, setGameName] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [version, setVersion] = useState('1.0.0');
-  const [files, setFiles] = useState<ModFile[]>([]);
-  const [createdUnlistedId, setCreatedUnlistedId] = useState('');
+  const [step, setStep] = useState<Step>(1);
+  const [formData, setFormData] = useState<ModFormData>({
+    gameName: '',
+    title: '',
+    description: '',
+    prompt: '',
+    version: '1.0.0',
+    files: [],
+  });
+  const [unlistedId, setUnlistedId] = useState<string>('');
 
-  const createMod = useCreateMod();
+  const createModMutation = useCreateMod();
 
-  const canProceedFromGame = () => {
-    return validateGameName(gameName).valid;
+  const handleNext = () => {
+    if (step === 1) {
+      const validation = validateGameName(formData.gameName);
+      if (!validation.valid) {
+        toast.error(validation.message);
+        return;
+      }
+    }
+
+    if (step === 2) {
+      const titleValidation = validateModTitle(formData.title);
+      if (!titleValidation.valid) {
+        toast.error(titleValidation.message);
+        return;
+      }
+
+      const descValidation = validateModDescription(formData.description);
+      if (!descValidation.valid) {
+        toast.error(descValidation.message);
+        return;
+      }
+
+      const versionValidation = validateModVersion(formData.version);
+      if (!versionValidation.valid) {
+        toast.error(versionValidation.message);
+        return;
+      }
+
+      const promptValidation = validateModPrompt(formData.prompt);
+      if (!promptValidation.valid) {
+        toast.error(promptValidation.message);
+        return;
+      }
+    }
+
+    if (step === 3) {
+      const fileValidation = validateFileCount(formData.files.length);
+      if (!fileValidation.valid) {
+        toast.error(fileValidation.message);
+        return;
+      }
+    }
+
+    setStep((prev) => Math.min(prev + 1, 4) as Step);
   };
 
-  const canProceedFromDetails = () => {
-    return (
-      validateModTitle(title).valid &&
-      validateModVersion(version).valid &&
-      validateModDescription(description).valid &&
-      validateModPrompt(prompt).valid
-    );
-  };
-
-  const canPublish = () => {
-    return validateFileCount(files.length).valid;
+  const handleBack = () => {
+    setStep((prev) => Math.max(prev - 1, 1) as Step);
   };
 
   const handlePublish = async () => {
-    if (!canPublish()) {
-      toast.error('Please add at least one file');
-      return;
-    }
-
-    const modId = `${gameName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`;
-    const unlistedId = generateUnlistedId();
+    const modId = `mod_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const newUnlistedId = generateUnlistedId();
 
     try {
-      await createMod.mutateAsync({
+      await createModMutation.mutateAsync({
         modId,
-        title,
-        description,
-        prompt,
-        version,
-        gameName,
-        files,
-        unlistedId,
+        title: formData.title,
+        description: formData.description,
+        prompt: formData.prompt,
+        version: formData.version,
+        gameName: formData.gameName,
+        files: formData.files,
+        unlistedId: newUnlistedId,
       });
-      setCreatedUnlistedId(unlistedId);
-      setStep('success');
+
+      setUnlistedId(newUnlistedId);
+      setStep(4);
       toast.success('Mod published successfully!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to publish mod');
+      console.error('Failed to create mod:', error);
+      toast.error(error.message || 'Failed to create mod');
     }
   };
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Progress */}
-        {step !== 'success' && (
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <div className={`flex items-center gap-2 ${step === 'game' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step === 'game' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                1
-              </div>
-              <span>Game</span>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <div className={`flex items-center gap-2 ${step === 'details' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step === 'details' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                2
-              </div>
-              <span>Details</span>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <div className={`flex items-center gap-2 ${step === 'files' ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step === 'files' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                3
-              </div>
-              <span>Files</span>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Game Name */}
-        {step === 'game' && (
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gamepad2 className="h-5 w-5" />
-                Game Name
-              </CardTitle>
-              <CardDescription>
-                Enter the name of the game this mod is for
-              </CardDescription>
+              <div className="flex items-center gap-3">
+                <Gamepad2 className="h-6 w-6 text-primary" />
+                <div>
+                  <CardTitle>Select Game</CardTitle>
+                  <CardDescription>Which game is this mod for?</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="game-name">
-                  Game Name <span className="text-destructive">*</span>
-                </Label>
+                <Label htmlFor="gameName">Game Name</Label>
                 <Input
-                  id="game-name"
-                  value={gameName}
-                  onChange={(e) => setGameName(e.target.value)}
-                  placeholder="Minecraft"
+                  id="gameName"
+                  placeholder="e.g., Minecraft, Skyrim, Stardew Valley"
+                  value={formData.gameName}
+                  onChange={(e) => setFormData({ ...formData, gameName: e.target.value })}
                 />
-                {gameName && !validateGameName(gameName).valid && (
-                  <p className="text-xs text-destructive">{validateGameName(gameName).message}</p>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  Enter the name of the game this mod is for
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 2:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Mod Details</CardTitle>
+              <CardDescription>Provide information about your mod</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ModEditorForm
+                title={formData.title}
+                description={formData.description}
+                prompt={formData.prompt}
+                version={formData.version}
+                onTitleChange={(title) => setFormData({ ...formData, title })}
+                onDescriptionChange={(description) => setFormData({ ...formData, description })}
+                onPromptChange={(prompt) => setFormData({ ...formData, prompt })}
+                onVersionChange={(version) => setFormData({ ...formData, version })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 3:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Upload Files</CardTitle>
+              <CardDescription>Add your mod files (max 10 files, 2MB each)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FileComposer
+                files={formData.files}
+                onChange={(files) => setFormData({ ...formData, files })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 4:
+        return (
+          <Card className="border-primary/20">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <CardTitle className="text-xl md:text-2xl">Mod Published!</CardTitle>
+              <CardDescription>Your mod is ready to share</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Share Link</Label>
+                <ModShareLink unlistedId={unlistedId} />
+                <p className="text-xs text-muted-foreground">
+                  Share this link with anyone you want to give access to your mod
+                </p>
               </div>
 
-              <div className="flex justify-end pt-4">
-                <Button onClick={() => setStep('details')} disabled={!canProceedFromGame()}>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button asChild variant="outline" className="w-full sm:flex-1">
+                  <a href={`/mod/${unlistedId}`} target="_blank" rel="noopener noreferrer">
+                    View Mod Page
+                  </a>
+                </Button>
+                <Button onClick={() => navigate({ to: '/dashboard' })} className="w-full sm:flex-1">
+                  Go to Dashboard
                 </Button>
               </div>
             </CardContent>
           </Card>
-        )}
+        );
+    }
+  };
 
-        {/* Step: Mod Details */}
-        {step === 'details' && (
-          <div className="space-y-4">
-            <ModEditorForm
-              title={title}
-              description={description}
-              prompt={prompt}
-              version={version}
-              onTitleChange={setTitle}
-              onDescriptionChange={setDescription}
-              onPromptChange={setPrompt}
-              onVersionChange={setVersion}
-            />
-
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep('game')}>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-              <Button onClick={() => setStep('files')} disabled={!canProceedFromDetails()}>
-                Next
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
+  return (
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
+        {/* Progress Indicator */}
+        {step < 4 && (
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className="flex items-center">
+                <div
+                  className={`h-8 w-8 md:h-10 md:w-10 rounded-full flex items-center justify-center text-sm md:text-base font-semibold transition-colors ${
+                    s === step
+                      ? 'bg-primary text-primary-foreground'
+                      : s < step
+                      ? 'bg-primary/20 text-primary'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {s}
+                </div>
+                {s < 3 && (
+                  <div
+                    className={`h-0.5 w-8 md:w-16 mx-1 md:mx-2 transition-colors ${
+                      s < step ? 'bg-primary' : 'bg-muted'
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Step: Files */}
-        {step === 'files' && (
-          <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mod Files</CardTitle>
-                <CardDescription>
-                  Upload files or create text files for your mod
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FileComposer files={files} onChange={setFiles} />
-              </CardContent>
-            </Card>
+        {/* Step Content */}
+        {renderStep()}
 
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep('details')}>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Back
+        {/* Navigation */}
+        {step < 4 && (
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              disabled={step === 1}
+              className="w-full sm:w-auto"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+
+            {step < 3 ? (
+              <Button onClick={handleNext} className="w-full sm:w-auto">
+                Next
+                <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
+            ) : (
               <Button
                 onClick={handlePublish}
-                disabled={!canPublish() || createMod.isPending}
+                disabled={createModMutation.isPending}
+                className="w-full sm:w-auto"
               >
-                {createMod.isPending ? (
+                {createModMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Publishing...
@@ -203,49 +290,8 @@ function ModCreateWizardContent() {
                   'Publish Mod'
                 )}
               </Button>
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Step: Success */}
-        {step === 'success' && (
-          <Card className="border-primary/50">
-            <CardContent className="pt-12 pb-12 text-center space-y-6">
-              <div className="flex justify-center">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <CheckCircle className="h-8 w-8 text-primary" />
-                </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">Mod Published!</h2>
-                <p className="text-muted-foreground mt-2">
-                  Your mod has been successfully created. Share the link below with others.
-                </p>
-              </div>
-
-              <div className="max-w-xl mx-auto">
-                <ModShareLink unlistedId={createdUnlistedId} />
-              </div>
-
-              <div className="flex gap-3 justify-center">
-                <Button variant="outline" onClick={() => navigate({ to: '/dashboard' })}>
-                  Go to Dashboard
-                </Button>
-                <Button onClick={() => {
-                  setStep('game');
-                  setGameName('');
-                  setTitle('');
-                  setDescription('');
-                  setPrompt('');
-                  setVersion('1.0.0');
-                  setFiles([]);
-                  setCreatedUnlistedId('');
-                }}>
-                  Create Another Mod
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         )}
       </div>
     </div>
@@ -255,7 +301,7 @@ function ModCreateWizardContent() {
 export default function ModCreateWizardPage() {
   return (
     <RequireAuth>
-      <ModCreateWizardContent />
+      <CreateWizardContent />
     </RequireAuth>
   );
 }

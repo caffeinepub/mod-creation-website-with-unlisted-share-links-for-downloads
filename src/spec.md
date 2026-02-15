@@ -1,14 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Simplify mod creation by letting creators type the target game name directly, and require a mod prompt that is stored and shown in mod metadata.
+**Goal:** Persist each mod’s on/off (enabled/disabled) toggle in the backend so the same state loads across all devices, while enforcing proper access control and handling disabled mods cleanly.
 
 **Planned changes:**
-- Update the mod creation wizard Game step to replace the game selector and “Create New Game” dialog with a required freeform text input for game name, and gate Next until it’s non-empty.
-- Add a new required Prompt field to the wizard details step with validation consistent with existing fields, and gate proceeding until it’s non-empty.
-- Update frontend validation helpers and step gating logic to validate the typed game name and the new prompt field.
-- Update backend mod model and APIs to store a freeform game name per mod (no longer dependent on a pre-existing game record) and to require/store/return the prompt field.
-- Update createMod calls, query/mutation layer, and generated types so prompt and game name are included end-to-end and compile cleanly.
-- Update mod display pages (creator manage and public unlisted) to show game name and prompt as read-only metadata.
+- Store each mod’s enabled/disabled state in the backend and return it to the creator when loading mod management on any device.
+- Add backend authorization so only the mod creator (or an admin) can read or update a mod’s enabled state.
+- Block public/unlisted access to disabled mods so fetching by unlistedId fails while disabled and succeeds again when re-enabled.
+- Update the mod management page to show an on/off toggle below the share link section that loads state from the backend and updates it via a backend mutation, with loading + success/error feedback in English.
+- Update the public mod page to show an English “mod unavailable/disabled” message (and hide download/share actions) when the backend denies access due to the mod being disabled.
 
-**User-visible outcome:** Creators can type the game name for a mod (no game selection/creation UI), must provide a prompt when creating/publishing, and both the game name and prompt are visible on creator and public mod pages.
+**User-visible outcome:** Mod creators can toggle a mod on/off on one device and see the same state on other devices (including consoles); disabled mods are inaccessible via unlisted links and public pages show a clear “unavailable/disabled” message instead of broken UI.

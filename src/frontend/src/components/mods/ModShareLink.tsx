@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Copy, Check, Share2 } from 'lucide-react';
 import { getShareUrl } from '../../lib/unlisted';
+import { copyToClipboard } from '../../lib/webShare';
 import { toast } from 'sonner';
 
 interface ModShareLinkProps {
@@ -16,14 +17,23 @@ export default function ModShareLink({ unlistedId }: ModShareLinkProps) {
   const shareUrl = getShareUrl(unlistedId);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
+    const success = await copyToClipboard(shareUrl);
+    
+    if (success) {
       setCopied(true);
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast.error('Failed to copy link');
+    } else {
+      toast.error('Failed to copy link. Please select and copy the URL manually.');
     }
+  };
+
+  const handleInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.target.select();
+  };
+
+  const handleInputClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    event.currentTarget.select();
   };
 
   return (
@@ -44,12 +54,17 @@ export default function ModShareLink({ unlistedId }: ModShareLinkProps) {
               id="share-url"
               value={shareUrl}
               readOnly
+              onFocus={handleInputFocus}
+              onClick={handleInputClick}
               className="font-mono text-xs"
             />
             <Button onClick={handleCopy} variant="outline" size="icon">
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Tip: If the copy button doesn't work, tap the URL to select it and copy manually
+          </p>
         </div>
       </CardContent>
     </Card>

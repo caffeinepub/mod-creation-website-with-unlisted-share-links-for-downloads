@@ -69,4 +69,14 @@
         @apply bg-background text-foreground;
         font-feature-settings: "rlig" 1, "calt" 1;
     }
+
+    /* Enhanced focus states for keyboard/remote navigation */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+        @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    }
 }
