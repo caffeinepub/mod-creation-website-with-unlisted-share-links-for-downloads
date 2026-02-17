@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { ModData, ModFile, UserProfile } from '../backend';
+import type { UserProfile, StoryMode, Chapter, CharacterShowcase } from '../backend';
+import type { ModFile, ModData } from '../lib/modTypes';
 import { Principal } from '@dfinity/principal';
 
 // User Profile Queries
@@ -39,128 +40,232 @@ export function useSaveCallerUserProfile() {
   });
 }
 
-// Mod Queries
+// Mod Queries (Stubs - backend does not support mods)
 export function useCreateMod() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async ({
-      modId,
-      title,
-      description,
-      prompt,
-      version,
-      gameName,
-      files,
-      unlistedId,
-    }: {
-      modId: string;
-      title: string;
-      description: string;
-      prompt: string;
-      version: string;
-      gameName: string;
-      files: ModFile[];
-      unlistedId: string;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.createMod(modId, title, description, prompt, version, gameName, files, unlistedId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mods'] });
+    mutationFn: async () => {
+      throw new Error('Mod functionality is not available in the backend');
     },
   });
 }
 
 export function useGetMod(modId: string) {
-  const { actor, isFetching: actorFetching } = useActor();
-
   return useQuery<ModData>({
     queryKey: ['mod', modId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getMod(modId);
+      throw new Error('Mod functionality is not available in the backend');
     },
-    enabled: !!actor && !actorFetching && !!modId,
+    enabled: false,
   });
 }
 
 export function useGetModByUnlistedId(unlistedId: string) {
-  const { actor, isFetching: actorFetching } = useActor();
-
   return useQuery<ModData>({
     queryKey: ['mod', 'unlisted', unlistedId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getModByUnlistedId(unlistedId);
+      throw new Error('Mod functionality is not available in the backend');
     },
-    enabled: !!actor && !actorFetching && !!unlistedId,
+    enabled: false,
     retry: false,
   });
 }
 
 export function useListModsForCreator(creator: Principal) {
-  const { actor, isFetching: actorFetching } = useActor();
-
   return useQuery<ModData[]>({
-    queryKey: ['mods', 'creator', creator.toString()],
+    queryKey: ['mods', 'creator', creator?.toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.listModsForCreator(creator);
+      return [];
     },
-    enabled: !!actor && !actorFetching,
+    enabled: false,
   });
 }
 
 export function useUpdateModFiles() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async ({ modId, newFiles }: { modId: string; newFiles: ModFile[] }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateModFiles(modId, newFiles);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['mod', variables.modId] });
-      queryClient.invalidateQueries({ queryKey: ['mods'] });
+    mutationFn: async () => {
+      throw new Error('Mod functionality is not available in the backend');
     },
   });
 }
 
-// Mod Enabled State Queries
 export function useGetModEnabledState(modId: string) {
-  const { actor, isFetching: actorFetching } = useActor();
-
   return useQuery<boolean>({
     queryKey: ['mod', modId, 'enabled'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getModEnabledState(modId);
+      throw new Error('Mod functionality is not available in the backend');
     },
-    enabled: !!actor && !actorFetching && !!modId,
+    enabled: false,
     retry: 1,
   });
 }
 
 export function useSetModEnabledState() {
+  return useMutation({
+    mutationFn: async ({ modId, enabled }: { modId: string; enabled: boolean }) => {
+      throw new Error('Mod functionality is not available in the backend');
+    },
+  });
+}
+
+// Story Mode Queries
+export function useListStoryModes() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<StoryMode[]>({
+    queryKey: ['storyModes'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.listStoryModes();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetStoryMode(storyId: string) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<StoryMode | null>({
+    queryKey: ['storyMode', storyId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getStoryMode(storyId);
+    },
+    enabled: !!actor && !actorFetching && !!storyId,
+  });
+}
+
+export function useCreateStoryMode() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ modId, enabled }: { modId: string; enabled: boolean }) => {
+    mutationFn: async ({
+      id,
+      title,
+      description,
+      chapters,
+      unlistedId,
+      characterDescription,
+      interactionCapabilities,
+    }: {
+      id: string;
+      title: string;
+      description: string;
+      chapters: Chapter[];
+      unlistedId: string;
+      characterDescription: string;
+      interactionCapabilities: string;
+    }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.setModEnabledState(modId, enabled);
+      return actor.createStoryMode(
+        id,
+        title,
+        description,
+        chapters,
+        unlistedId,
+        characterDescription,
+        interactionCapabilities
+      );
     },
-    onSuccess: (_, variables) => {
-      // Immediately set the cached value to ensure UI reflects backend state
-      queryClient.setQueryData(['mod', variables.modId, 'enabled'], variables.enabled);
-      
-      // Invalidate related queries to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ['mod', variables.modId] });
-      queryClient.invalidateQueries({ queryKey: ['mods'] });
-      queryClient.invalidateQueries({ queryKey: ['mod', 'unlisted'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storyModes'] });
+    },
+  });
+}
+
+export function useUpdateStoryMode() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      description,
+      chapters,
+      characterDescription,
+      interactionCapabilities,
+    }: {
+      id: string;
+      title: string;
+      description: string;
+      chapters: Chapter[];
+      characterDescription: string;
+      interactionCapabilities: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateStoryMode(
+        id,
+        title,
+        description,
+        chapters,
+        characterDescription,
+        interactionCapabilities
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['storyModes'] });
+    },
+  });
+}
+
+// Character Showcase Queries
+export function useGetCharacterShowcase(showcaseId: string) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<CharacterShowcase | null>({
+    queryKey: ['characterShowcase', showcaseId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCharacterShowcase(showcaseId);
+    },
+    enabled: !!actor && !actorFetching && !!showcaseId,
+    retry: false,
+  });
+}
+
+export function useListCharacterShowcases() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<CharacterShowcase[]>({
+    queryKey: ['characterShowcases'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.listCharacterShowcases();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useCreateCharacterShowcase() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      characterName,
+      description,
+      author,
+      photo,
+      video,
+      unlistedId,
+    }: {
+      id: string;
+      title: string;
+      characterName: string;
+      description: string;
+      author: string;
+      photo: any;
+      video: any;
+      unlistedId: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createCharacterShowcase(id, title, characterName, description, author, photo, video, unlistedId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['characterShowcases'] });
     },
   });
 }

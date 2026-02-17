@@ -4,11 +4,13 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import Storage "blob-storage/Storage";
+import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   type ModFile = {
     filename : Text;
@@ -33,26 +35,66 @@ actor {
     enabled : Bool;
   };
 
+  public type Quest = {
+    id : Nat;
+    title : Text;
+    description : Text;
+    isCompleted : Bool;
+    unlistedId : Text;
+  };
+
+  public type Scene = {
+    id : Nat;
+    title : Text;
+    content : Text;
+    voiceOver : Text;
+    hasDialogue : Bool;
+    voiceCoachingText : Text;
+    context : Text;
+    audioRecording : ?Storage.ExternalBlob;
+    speechVoicePreset : ?Text;
+  };
+
+  public type Chapter = {
+    id : Nat;
+    title : Text;
+    quests : [Quest];
+    scenes : [Scene];
+    unlistedId : Text;
+  };
+
+  public type StoryMode = {
+    id : Text;
+    title : Text;
+    description : Text;
+    chapters : [Chapter];
+    unlistedId : Text;
+    creator : Principal;
+    characterDescription : Text;
+    interactionCapabilities : Text;
+  };
+
+  public type CharacterShowcase = {
+    id : Text;
+    title : Text;
+    characterName : Text;
+    description : Text;
+    author : Text;
+    creator : Principal;
+    photo : ?Storage.ExternalBlob;
+    video : ?Storage.ExternalBlob;
+    unlistedId : Text;
+  };
+
   let mods = Map.empty<Text, ModData>();
+  let storyModes = Map.empty<Text, StoryMode>();
+  let characterShowcases = Map.empty<Text, CharacterShowcase>();
   let userProfiles = Map.empty<Principal, UserProfile>();
+  let userShowcaseMapping = Map.empty<Principal, Text>();
 
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
-
-  public query ({ caller }) func getModByUnlistedId(unlistedId : Text) : async ModData {
-    if (unlistedId == "") {
-      Runtime.trap("Mod not found");
-    };
-
-    switch (mods.values().find(func(mod) { mod.unlistedId == unlistedId })) {
-      case (?mod) {
-        if (mod.enabled) { mod } else {
-          Runtime.trap("Mod not found");
-        };
-      };
-      case (null) { Runtime.trap("Mod not found") };
-    };
-  };
+  include MixinStorage();
 
   // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -76,204 +118,247 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Mod management
-  public shared ({ caller }) func createMod(
-    modId : Text,
+  // Story Mode management
+  public shared ({ caller }) func createStoryMode(
+    id : Text,
     title : Text,
     description : Text,
-    prompt : Text,
-    version : Text,
-    gameName : Text,
-    files : [ModFile],
+    chapters : [Chapter],
     unlistedId : Text,
+    characterDescription : Text,
+    interactionCapabilities : Text,
   ) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can create mods");
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only authenticated users can create stories");
     };
 
-    if (title == "" or description == "" or version == "") {
-      Runtime.trap("Title, description, and version are required");
+    if (title == "" or description == "") {
+      Runtime.trap("Title and description are required");
     };
 
-    if (files.size() == 0) {
-      Runtime.trap("At least one mod file is required");
+    if (storyModes.containsKey(id)) {
+      Runtime.trap("Story with this ID already exists");
     };
 
-    if (mods.containsKey(modId)) {
-      Runtime.trap("Mod with this ID already exists");
-    };
+    let verifiedChapters = verifyChapters(chapters);
 
-    let verifiedFiles = verifyFiles(files);
-
-    let modData : ModData = {
-      id = modId;
+    let storyMode : StoryMode = {
+      id;
       title;
       description;
-      prompt;
-      version;
-      creator = caller;
-      gameName;
-      files = verifiedFiles;
+      chapters = verifiedChapters;
       unlistedId;
-      enabled = true;
+      creator = caller;
+      characterDescription;
+      interactionCapabilities;
     };
 
-    mods.add(modId, modData);
+    storyModes.add(id, storyMode);
   };
 
-  public shared ({ caller }) func updateModFiles(modId : Text, newFiles : [ModFile]) : async () {
+  public shared ({ caller }) func updateStoryMode(
+    id : Text,
+    title : Text,
+    description : Text,
+    chapters : [Chapter],
+    characterDescription : Text,
+    interactionCapabilities : Text,
+  ) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can update mods");
+      Runtime.trap("Unauthorized: Only authenticated users can update stories");
     };
 
-    switch (mods.get(modId)) {
-      case (null) { Runtime.trap("Mod not found") };
-      case (?modData) {
-        if (caller != modData.creator) {
-          Runtime.trap("Unauthorized: Only the mod creator can update files");
+    switch (storyModes.get(id)) {
+      case (null) {
+        Runtime.trap("Story not found");
+      };
+      case (?existingStory) {
+        // Only creator or admin can update
+        if (existingStory.creator != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Only the creator or admin can update this story");
         };
 
-        if (newFiles.size() == 0) {
-          Runtime.trap("At least one file is required");
+        if (title == "" or description == "") {
+          Runtime.trap("Title and description are required");
         };
 
-        let verifiedFiles = verifyFiles(newFiles);
+        let verifiedChapters = verifyChapters(chapters);
 
-        let updatedMod : ModData = {
-          id = modData.id;
-          title = modData.title;
-          description = modData.description;
-          version = modData.version;
-          prompt = modData.prompt;
-          creator = modData.creator;
-          gameName = modData.gameName;
-          files = verifiedFiles;
-          unlistedId = modData.unlistedId;
-          enabled = modData.enabled;
+        let updatedStory : StoryMode = {
+          existingStory with
+          title;
+          description;
+          chapters = verifiedChapters;
+          characterDescription;
+          interactionCapabilities;
         };
 
-        mods.add(modId, updatedMod);
+        storyModes.add(id, updatedStory);
       };
     };
   };
 
-  public shared ({ caller }) func setModEnabledState(modId : Text, enabled : Bool) : async () {
+  // Character Showcase management
+  public shared ({ caller }) func createCharacterShowcase(
+    id : Text,
+    title : Text,
+    characterName : Text,
+    description : Text,
+    author : Text,
+    photo : ?Storage.ExternalBlob,
+    video : ?Storage.ExternalBlob,
+    unlistedId : Text,
+  ) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can update mods");
+      Runtime.trap("Unauthorized: Only authenticated users can create character showcases");
     };
 
-    if (modId == "") { Runtime.trap("Mod not found") };
+    // Enforce one showcase per user
+    switch (userShowcaseMapping.get(caller)) {
+      case (?existingId) {
+        Runtime.trap("User already has a character showcase. Only one showcase per user is allowed.");
+      };
+      case (null) {};
+    };
 
-    switch (mods.get(modId)) {
-      case (null) { Runtime.trap("Mod not found") };
-      case (?modData) {
-        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Only the mod creator or admin can toggle this mod");
+    if (title == "" or characterName == "" or description == "") {
+      Runtime.trap("All fields are required");
+    };
+
+    if (characterShowcases.containsKey(id)) {
+      Runtime.trap("Showcase with this ID already exists");
+    };
+
+    // Enforce exactly one media item
+    switch (photo, video) {
+      case (null, null) {
+        Runtime.trap("Exactly one media item (photo or video) is required");
+      };
+      case (?_, ?_) {
+        Runtime.trap("Only one media item (photo or video) is allowed");
+      };
+      case _ {};
+    };
+
+    let showcase : CharacterShowcase = {
+      id;
+      title;
+      characterName;
+      description;
+      author;
+      creator = caller;
+      photo;
+      video;
+      unlistedId;
+    };
+
+    characterShowcases.add(id, showcase);
+    userShowcaseMapping.add(caller, id);
+  };
+
+  public shared ({ caller }) func updateCharacterShowcase(
+    id : Text,
+    title : Text,
+    characterName : Text,
+    description : Text,
+    author : Text,
+    photo : ?Storage.ExternalBlob,
+    video : ?Storage.ExternalBlob,
+  ) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only authenticated users can update character showcases");
+    };
+
+    switch (characterShowcases.get(id)) {
+      case (null) {
+        Runtime.trap("Showcase not found");
+      };
+      case (?existingShowcase) {
+        // Only creator or admin can update
+        if (existingShowcase.creator != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Only the creator or admin can update this showcase");
         };
 
-        let updatedMod : ModData = {
-          id = modData.id;
-          title = modData.title;
-          description = modData.description;
-          version = modData.version;
-          prompt = modData.prompt;
-          creator = modData.creator;
-          gameName = modData.gameName;
-          files = modData.files;
-          unlistedId = modData.unlistedId;
-          enabled;
+        if (title == "" or characterName == "" or description == "") {
+          Runtime.trap("All fields are required");
         };
 
-        mods.add(modId, updatedMod);
+        // Enforce exactly one media item
+        switch (photo, video) {
+          case (null, null) {
+            Runtime.trap("Exactly one media item (photo or video) is required");
+          };
+          case (?_, ?_) {
+            Runtime.trap("Only one media item (photo or video) is allowed");
+          };
+          case _ {};
+        };
+
+        let updatedShowcase : CharacterShowcase = {
+          existingShowcase with
+          title;
+          characterName;
+          description;
+          author;
+          photo;
+          video;
+        };
+
+        characterShowcases.add(id, updatedShowcase);
       };
     };
   };
 
-  public query ({ caller }) func getModEnabledState(modId : Text) : async Bool {
+  public shared ({ caller }) func updateStoryModeEnabledState(storyModeId : Text, enabled : Bool) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can check mod state");
+      Runtime.trap("Unauthorized: Only authenticated users can update stories");
     };
 
-    if (modId == "") { Runtime.trap("Mod not found") };
+    if (storyModeId == "") { Runtime.trap("Story not found") };
 
-    switch (mods.get(modId)) {
-      case (null) { Runtime.trap("Mod not found") };
-      case (?modData) {
-        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Only the mod creator or admin can check this mod's state");
+    switch (storyModes.get(storyModeId)) {
+      case (null) { Runtime.trap("Story not found") };
+      case (?storyMode) {
+        // Only creator or admin can update
+        if (storyMode.creator != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Only the creator or admin can update this story");
         };
-        modData.enabled;
+        storyModes.add(storyModeId, storyMode);
       };
     };
   };
 
-  public query ({ caller }) func getMod(modId : Text) : async ModData {
+  public query ({ caller }) func getStoryMode(storyModeId : Text) : async ?StoryMode {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can access mods by ID");
+      Runtime.trap("Unauthorized: Only authenticated users can access stories");
     };
 
-    switch (mods.get(modId)) {
-      case (?modData) {
-        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Only the mod creator can access this mod");
-        };
-        modData;
-      };
-      case (null) { Runtime.trap("Mod not found") };
-    };
+    storyModes.get(storyModeId);
   };
 
-  public query ({ caller }) func listModsForGame(gameName : Text) : async [ModData] {
+  public query ({ caller }) func listStoryModes() : async [StoryMode] {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can list mods");
+      Runtime.trap("Unauthorized: Only authenticated users can list stories");
     };
-
-    mods.values().filter(func(mod) { mod.gameName == gameName and mod.creator == caller }).toArray();
+    storyModes.values().toArray();
   };
 
-  public query ({ caller }) func listModsForCreator(creator : Principal) : async [ModData] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can list mods");
-    };
-
-    if (caller != creator and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only list your own mods");
-    };
-
-    mods.values().filter(func(mod) { mod.creator == creator }).toArray();
+  // Public access for character showcases (unlisted-style)
+  public query func getCharacterShowcase(showcaseId : Text) : async ?CharacterShowcase {
+    // No authentication required - public access with link
+    characterShowcases.get(showcaseId);
   };
 
-  public query ({ caller }) func listModFiles(modId : Text) : async [ModFile] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only authenticated users can list mod files");
-    };
-
-    switch (mods.get(modId)) {
-      case (null) { Runtime.trap("Mod not found") };
-      case (?modData) {
-        if (caller != modData.creator and not AccessControl.isAdmin(accessControlState, caller)) {
-          Runtime.trap("Unauthorized: Only the mod creator can list files");
-        };
-        modData.files;
-      };
-    };
+  public query func listCharacterShowcases() : async [CharacterShowcase] {
+    // No authentication required - public access
+    characterShowcases.values().toArray();
   };
 
-  func verifyFiles(files : [ModFile]) : [ModFile] {
-    let textFilesCount = files.filter(
-      func(file) {
-        file.contentType == "text/plain";
-      }
-    ).size();
-
-    if (files.size() > 10) {
-      Runtime.trap("A maximum of 10 files per mod is allowed");
+  func verifyChapters(chapters : [Chapter]) : [Chapter] {
+    if (chapters.size() == 0) {
+      Runtime.trap("At least one chapter is required");
     };
 
-    if (textFilesCount > 5) {
-      Runtime.trap("A maximum of 5 text files per mod is allowed");
-    };
-
-    files;
+    chapters;
   };
 };

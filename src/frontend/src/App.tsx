@@ -9,6 +9,11 @@ import ModCreateWizardPage from './pages/ModCreateWizardPage';
 import ModManagePage from './pages/ModManagePage';
 import PublicModPage from './pages/PublicModPage';
 import BedrockFileOpenerPage from './pages/BedrockFileOpenerPage';
+import StoryModeHomePage from './pages/StoryModeHomePage';
+import StoryModeEditPage from './pages/StoryModeEditPage';
+import StoryModePlayerPage from './pages/StoryModePlayerPage';
+import CharacterShowcaseCreatorPage from './pages/CharacterShowcaseCreatorPage';
+import PublicCharacterShowcasePage from './pages/PublicCharacterShowcasePage';
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -63,6 +68,36 @@ const bedrockOpenerRoute = createRoute({
   component: BedrockFileOpenerPage,
 });
 
+const storyModeHomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/story-mode',
+  component: StoryModeHomePage,
+});
+
+const storyModeEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/story-mode/edit/$storyId',
+  component: StoryModeEditPage,
+});
+
+const storyModePlayerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/story-mode/play/$storyId',
+  component: StoryModePlayerPage,
+});
+
+const characterShowcaseCreatorRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/character-showcase',
+  component: CharacterShowcaseCreatorPage,
+});
+
+const publicCharacterShowcaseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/character/$unlistedId',
+  component: PublicCharacterShowcasePage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   signInRoute,
@@ -71,6 +106,11 @@ const routeTree = rootRoute.addChildren([
   manageModRoute,
   publicModRoute,
   bedrockOpenerRoute,
+  storyModeHomeRoute,
+  storyModeEditRoute,
+  storyModePlayerRoute,
+  characterShowcaseCreatorRoute,
+  publicCharacterShowcaseRoute,
 ]);
 
 const router = createRouter({ routeTree });

@@ -3,80 +3,95 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.5rem;
-        
-        /* Light mode - Industrial steel palette */
-        --background: 0.98 0 0;
-        --foreground: 0.15 0 0;
-        --card: 1 0 0;
-        --card-foreground: 0.15 0 0;
-        --popover: 1 0 0;
-        --popover-foreground: 0.15 0 0;
-        --primary: 0.45 0.08 240;
-        --primary-foreground: 0.98 0 0;
-        --secondary: 0.88 0.02 240;
-        --secondary-foreground: 0.15 0 0;
-        --muted: 0.92 0.01 240;
-        --muted-foreground: 0.50 0.02 240;
-        --accent: 0.55 0.12 30;
-        --accent-foreground: 0.98 0 0;
-        --destructive: 0.55 0.22 25;
-        --destructive-foreground: 0.98 0 0;
-        --border: 0.85 0.01 240;
-        --input: 0.85 0.01 240;
-        --ring: 0.45 0.08 240;
-        --chart-1: 0.55 0.15 240;
-        --chart-2: 0.60 0.12 30;
-        --chart-3: 0.50 0.10 180;
-        --chart-4: 0.65 0.18 300;
-        --chart-5: 0.58 0.14 60;
-    }
+  :root {
+    --background: oklch(100% 0 0);
+    --foreground: oklch(15% 0 0);
+    --card: oklch(100% 0 0);
+    --card-foreground: oklch(15% 0 0);
+    --popover: oklch(100% 0 0);
+    --popover-foreground: oklch(15% 0 0);
+    --primary: oklch(50% 0.15 270);
+    --primary-foreground: oklch(100% 0 0);
+    --secondary: oklch(95% 0.01 270);
+    --secondary-foreground: oklch(15% 0 0);
+    --muted: oklch(95% 0.01 270);
+    --muted-foreground: oklch(45% 0.01 270);
+    --accent: oklch(95% 0.01 270);
+    --accent-foreground: oklch(15% 0 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(100% 0 0);
+    --border: oklch(90% 0.01 270);
+    --input: oklch(90% 0.01 270);
+    --ring: oklch(50% 0.15 270);
+    --radius: 0.5rem;
+    --chart-1: oklch(60% 0.15 270);
+    --chart-2: oklch(70% 0.12 160);
+    --chart-3: oklch(55% 0.15 30);
+    --chart-4: oklch(65% 0.12 80);
+    --chart-5: oklch(60% 0.15 340);
 
-    .dark {
-        /* Dark mode - Industrial forge palette */
-        --background: 0.12 0.01 240;
-        --foreground: 0.95 0.01 240;
-        --card: 0.18 0.02 240;
-        --card-foreground: 0.95 0.01 240;
-        --popover: 0.15 0.02 240;
-        --popover-foreground: 0.95 0.01 240;
-        --primary: 0.65 0.15 240;
-        --primary-foreground: 0.12 0.01 240;
-        --secondary: 0.25 0.03 240;
-        --secondary-foreground: 0.95 0.01 240;
-        --muted: 0.22 0.02 240;
-        --muted-foreground: 0.60 0.03 240;
-        --accent: 0.55 0.18 30;
-        --accent-foreground: 0.98 0 0;
-        --destructive: 0.60 0.25 25;
-        --destructive-foreground: 0.12 0.01 240;
-        --border: 0.25 0.02 240;
-        --input: 0.25 0.02 240;
-        --ring: 0.55 0.12 240;
-        --chart-1: 0.60 0.18 240;
-        --chart-2: 0.65 0.15 30;
-        --chart-3: 0.55 0.12 180;
-        --chart-4: 0.70 0.20 300;
-        --chart-5: 0.62 0.16 60;
-    }
+    /* Story Mode theme - warm amber/copper */
+    --story: oklch(60% 0.18 50);
+    --story-foreground: oklch(100% 0 0);
 
-    * {
-        @apply border-border;
-    }
-    
-    body {
-        @apply bg-background text-foreground;
-        font-feature-settings: "rlig" 1, "calt" 1;
-    }
+    /* Character Showcase theme - emerald green */
+    --showcase: oklch(55% 0.16 150);
+    --showcase-foreground: oklch(100% 0 0);
 
-    /* Enhanced focus states for keyboard/remote navigation */
-    a:focus-visible,
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible,
-    select:focus-visible,
-    [tabindex]:focus-visible {
-        @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-    }
+    /* Promo/Ad theme - warm orange/amber */
+    --promo: oklch(65% 0.20 45);
+    --promo-foreground: oklch(100% 0 0);
+    --ad: oklch(62% 0.18 40);
+    --ad-foreground: oklch(100% 0 0);
+  }
+
+  .dark {
+    --background: oklch(15% 0.01 270);
+    --foreground: oklch(98% 0 0);
+    --card: oklch(18% 0.01 270);
+    --card-foreground: oklch(98% 0 0);
+    --popover: oklch(15% 0.01 270);
+    --popover-foreground: oklch(98% 0 0);
+    --primary: oklch(70% 0.15 270);
+    --primary-foreground: oklch(15% 0 0);
+    --secondary: oklch(25% 0.02 270);
+    --secondary-foreground: oklch(98% 0 0);
+    --muted: oklch(25% 0.02 270);
+    --muted-foreground: oklch(65% 0.02 270);
+    --accent: oklch(25% 0.02 270);
+    --accent-foreground: oklch(98% 0 0);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(100% 0 0);
+    --border: oklch(25% 0.02 270);
+    --input: oklch(25% 0.02 270);
+    --ring: oklch(70% 0.15 270);
+    --chart-1: oklch(65% 0.15 270);
+    --chart-2: oklch(75% 0.12 160);
+    --chart-3: oklch(60% 0.15 30);
+    --chart-4: oklch(70% 0.12 80);
+    --chart-5: oklch(65% 0.15 340);
+
+    /* Story Mode theme - warm amber/copper (dark mode) */
+    --story: oklch(70% 0.18 50);
+    --story-foreground: oklch(15% 0 0);
+
+    /* Character Showcase theme - emerald green (dark mode) */
+    --showcase: oklch(65% 0.16 150);
+    --showcase-foreground: oklch(15% 0 0);
+
+    /* Promo/Ad theme - warm orange/amber (dark mode) */
+    --promo: oklch(72% 0.20 45);
+    --promo-foreground: oklch(15% 0 0);
+    --ad: oklch(70% 0.18 40);
+    --ad-foreground: oklch(15% 0 0);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

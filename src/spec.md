@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Persist each mod’s on/off (enabled/disabled) toggle in the backend so the same state loads across all devices, while enforcing proper access control and handling disabled mods cleanly.
+**Goal:** Add a prominent “Create Mod” section on creator pages and introduce 30-second ad placements plus mandatory 60-second ad gating after creators publish/save.
 
 **Planned changes:**
-- Store each mod’s enabled/disabled state in the backend and return it to the creator when loading mod management on any device.
-- Add backend authorization so only the mod creator (or an admin) can read or update a mod’s enabled state.
-- Block public/unlisted access to disabled mods so fetching by unlistedId fails while disabled and succeeds again when re-enabled.
-- Update the mod management page to show an on/off toggle below the share link section that loads state from the backend and updates it via a backend mutation, with loading + success/error feedback in English.
-- Update the public mod page to show an English “mod unavailable/disabled” message (and hide download/share actions) when the backend denies access due to the mod being disabled.
+- Add a reusable “Create Mod” section (Card/CTA) that links to `/create`, rendered above main content (and above any tab navigation where present).
+- Place the “Create Mod” section at the top of `/character-showcase` and at the top of `/story-mode/edit/$storyId` above the editor content (and above tabs if present).
+- Create a reusable 30-second ad placement component with clear “Advertisement” labeling and a visible countdown timer while playing.
+- Embed the 30-second ad placement on at least the Landing page (`/`) and Dashboard (`/dashboard`) within the frontend layout.
+- Add a mandatory, non-dismissible 60-second ad modal gate after successful Story Mode save navigation and after successful Character Showcase publish/update; include “Advertisement” labeling, countdown, and a fallback message if video fails to load while still enforcing the countdown.
+- Apply a cohesive modern theme for the new Create Mod section and all ad UI, consistent across placements and avoiding a blue/purple primary look.
 
-**User-visible outcome:** Mod creators can toggle a mod on/off on one device and see the same state on other devices (including consoles); disabled mods are inaccessible via unlisted links and public pages show a clear “unavailable/disabled” message instead of broken UI.
+**User-visible outcome:** Creators see a “Create Mod” call-to-action above creator experiences, users see 30-second ad experiences on key pages, and creators must complete a 60-second ad watch gate after saving/publishing before continuing.

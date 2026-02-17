@@ -1,57 +1,62 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T09:11:46.007Z",
-  "summary": "Diff implements backend storage of an `enabled` flag on mods, blocks `getModByUnlistedId` when disabled, adds frontend hooks/UI for a mod enabled toggle with loading + toast feedback, and updates the public mod page to show an unavailable message when the mod can’t be fetched. However, the backend-side access control for reading/updating enabled state is not verifiable from the provided backend diff excerpt, and several unrelated frontend/UI changes appear in the summaries.",
+  "generatedAt": "2026-02-17T08:04:56.407Z",
+  "summary": "Diff adds new CreateModSection and ad components (30s placement + 60s gate modal) and wires AdPlacement into Landing and Dashboard. However, evidence is insufficient to confirm Create Mod placement at the very top of the specified creator pages and to confirm the Story Mode save flow is gated before navigation. Visual theme requirement is likely not fully met due to continued blue/purple primary theme variables.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Enforce access control for enabled-state operations: only the mod creator (or an admin) can read or update a mod’s enabled/disabled state by modId.",
-      "reason": "Frontend calls `actor.getModEnabledState(modId)` and a set-enabled mutation exists, but the backend diff excerpt does not show `getModEnabledState` / `setModEnabledState` implementations nor their authorization checks. Since `backend/main.mo` is truncated, access control enforcement for these operations cannot be confirmed from the provided evidence.",
+      "id": "REQ-1",
+      "requirement": "Render a prominent “Create Mod” section at the very top of /character-showcase and /story-mode/edit/$storyId content (above any header/form and above tabs where present), linking CTA to /create.",
+      "reason": "CreateModSection is added and imported into the target pages, but the diff excerpts are truncated before the JSX render where its placement relative to existing header/form/tabs can be verified.",
       "evidence": [
-        "backend/main.mo (truncated; shows auth checks for profiles and file updates but not for enabled-state APIs)",
-        "frontend/src/hooks/useQueries.ts (truncated; references `actor.getModEnabledState(modId)` and set-enabled mutation)"
+        "frontend/src/components/promo/CreateModSection.tsx",
+        "frontend/src/pages/CharacterShowcaseCreatorPage.tsx (truncated)",
+        "frontend/src/pages/StoryModeEditPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "After a successful Story Mode save that navigates away from the editor, show a mandatory non-dismissible 60-second ad gate modal before allowing the user to continue to the destination page.",
+      "reason": "AdGateModal is added and imported into StoryModeEditPage, but the truncated diff does not show the post-save success flow/navigation being intercepted to display the gate prior to continuing.",
+      "evidence": [
+        "frontend/src/components/ads/AdGateModal.tsx",
+        "frontend/src/pages/StoryModeEditPage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Apply a cohesive modern theme for Create Mod + all ad UI that avoids a blue/purple primary theme and feels coherent with Tailwind/shadcn.",
+      "reason": "While new warm promo/ad tokens are added, global primary/secondary/muted/accent variables are still set to hue 270 (blue/purple), and LandingPage uses text-primary for prominent branding; this conflicts with the requirement to avoid a blue/purple primary brand look.",
+      "evidence": [
+        "frontend/src/index.css",
+        "frontend/src/pages/LandingPage.tsx (truncated)",
+        "frontend/tailwind.config.js"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Adds a new `/open-bedrock` route for local Bedrock file opening.",
-      "reason": "Not requested by any REQ; BuildRequest focuses on persisting mod enable/disable state and related UI/handling.",
+      "description": "Added dedicated Story Mode and Character Showcase theme tokens (CSS variables and Tailwind colors) beyond the requested Create Mod + ad UI theming.",
+      "reason": "BuildRequest only asks for cohesive theme for the new “Create Mod” section and ad UI; separate story/showcase theme systems are not requested.",
       "evidence": [
-        "frontend-file-summaries.txt (mentions new /open-bedrock route in frontend/src/App.tsx)"
-      ]
-    },
-    {
-      "description": "UI/branding/layout updates (e.g., updated logo/“Grylie's mods” branding, footer attribution with UTM tracking, responsive header/nav changes).",
-      "reason": "Not part of the requested mod enable/disable persistence and related pages’ behavior.",
-      "evidence": [
-        "frontend-file-summaries.txt (summaries for frontend/src/components/layout/AppLayout.tsx, frontend/src/pages/LandingPage.tsx, frontend/src/pages/SignInPage.tsx, frontend/src/pages/DashboardPage.tsx)"
-      ]
-    },
-    {
-      "description": "Global focus-visible styling enhancements for keyboard/remote navigation.",
-      "reason": "Not requested by any requirement; request is specifically about toggle persistence and disabled-mod handling.",
-      "evidence": [
-        "frontend-file-summaries.txt (mentions frontend/src/index.css focus-visible styling changes)"
-      ]
-    },
-    {
-      "description": "Additional validation/unlisted utility work (structured field validation utilities; unlisted identifier generation helpers).",
-      "reason": "Not requested; the BuildRequest does not ask for changing validation or unlisted ID generation.",
-      "evidence": [
-        "frontend-file-summaries.txt (mentions frontend/src/lib/validation.ts and frontend/src/lib/unlisted.ts)"
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.66,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/mods/ModEnabledToggle.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/PublicModPage.tsx",
+    "frontend/src/components/ads/AdGateModal.tsx",
+    "frontend/src/components/ads/AdPlacement.tsx",
+    "frontend/src/components/promo/CreateModSection.tsx",
+    "frontend/src/hooks/useAdCountdown.ts",
+    "frontend/src/index.css",
+    "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/pages/StoryModeEditPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json"
   ]
 }

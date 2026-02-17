@@ -2,11 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-persist-each-mod-s-enabled-disabled-state-in-the-backend-so-that-when-the-mod-creator-toggles-the-mod-on-off-on-one-device-the-same-enabled-state-is-returned-when-the-creator-opens-the-app-on-any-other-device-including-consoles",
-      "featureTitle": "Persist each mod’s enabled/disabled state in the backend so that when the mod creator toggles the mod on/off on one device, the same enabled state is returned when the creator opens the app on any other device (including consoles).",
+      "featureId": "feature-add-a-prominent-create-mod-section-that-appears-above-the-main-content-above-any-existing-tab-navigation-where-present-on-creator-oriented-pages-so-it-is-shown-above-both-the-create-character-and-create-story-mode-experiences-and-link-the-section-to-the-existing-mod-create-route-create",
+      "featureTitle": "Add a prominent “Create Mod” section that appears above the main content (above any existing tab navigation where present) on creator-oriented pages so it is shown above both the Create Character and Create Story Mode experiences, and link the section to the existing Mod Create route (/create).",
       "files": [
-        "frontend/src/components/mods/ModEnabledToggle.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/promo/CreateModSection.tsx",
+        "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+        "frontend/src/pages/StoryModeEditPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -14,7 +15,8 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
       ],
       "testIds": [
         "REQ-1"
@@ -22,11 +24,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-on-the-mod-management-page-render-a-mod-on-off-toggle-ui-directly-below-the-existing-share-link-section-the-toggle-must-load-the-current-enabled-state-from-the-backend-and-update-it-via-a-backend-mutation",
-      "featureTitle": "On the mod management page, render a mod on/off toggle UI directly below the existing share link section; the toggle must load the current enabled state from the backend and update it via a backend mutation.",
+      "featureId": "feature-integrate-30-second-video-game-ads-into-the-website-by-adding-an-ad-placement-component-that-can-display-a-30-second-ad-experience-video-player-ui-with-a-visible-30-second-countdown-and-clear-advertisement-labeling-on-key-pages",
+      "featureTitle": "Integrate 30-second “video game ads” into the website by adding an ad placement component that can display a 30-second ad experience (video player UI with a visible 30-second countdown and clear “Advertisement” labeling) on key pages.",
       "files": [
-        "frontend/src/components/mods/ModEnabledToggle.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/ads/AdPlacement.tsx",
+        "frontend/src/hooks/useAdCountdown.ts",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/LandingPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -34,18 +38,21 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-2"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-on-the-public-mod-page-handle-disabled-mods-gracefully-by-showing-an-english-mod-unavailable-disabled-message-instead-of-broken-ui-when-the-backend-denies-access-because-the-mod-is-disabled",
-      "featureTitle": "On the public mod page, handle disabled mods gracefully by showing an English “mod unavailable/disabled” message instead of broken UI when the backend denies access because the mod is disabled.",
+      "featureId": "feature-require-creators-to-watch-a-1-minute-video-game-advertisement-after-successfully-finishing-publishing-a-project-by-gating-completion-flows-with-a-mandatory-60-second-ad-modal-that-cannot-be-dismissed-until-the-countdown-completes",
+      "featureTitle": "Require creators to watch a 1-minute video game advertisement after successfully finishing/publishing a project by gating completion flows with a mandatory 60-second ad modal that cannot be dismissed until the countdown completes.",
       "files": [
-        "frontend/src/pages/PublicModPage.tsx"
+        "frontend/src/components/ads/AdGateModal.tsx",
+        "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+        "frontend/src/pages/StoryModeEditPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -53,10 +60,34 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-establish-and-apply-a-cohesive-modern-visual-theme-for-the-new-create-mod-section-and-ad-ui-colors-typography-accents-and-layout-consistent-across-all-placements-without-using-a-blue-purple-primary-theme",
+      "featureTitle": "Establish and apply a cohesive, modern visual theme for the new “Create Mod” section and ad UI (colors, typography accents, and layout), consistent across all placements, without using a blue/purple primary theme.",
+      "files": [
+        "frontend/src/components/ads/AdGateModal.tsx",
+        "frontend/src/components/ads/AdPlacement.tsx",
+        "frontend/src/components/promo/CreateModSection.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

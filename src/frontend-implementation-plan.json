@@ -1,67 +1,132 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Persisted mod enabled/disabled toggle UI and disabled-mod handling",
+  "title": "Creator page Create Mod promo + 30s ad placements + 60s ad completion gate",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Ensure the mod enabled/disabled state shown in the UI is fetched from backend state (not client-only) and updates after backend-confirmed changes.",
+      "summary": "Add a prominent Create Mod promo section above main content on creator-oriented pages and link it to /create.",
       "acceptanceCriteria": [
-        "When a creator toggles a mod to Disabled on Device A, then opens the mod management page on Device B, the toggle loads as Disabled without relying on local storage.",
-        "When a creator toggles a mod to Enabled on Device A, then opens the public/unlisted link, the mod is accessible again.",
-        "The enabled state is fetched from the backend and not derived from client-only state."
+        "On the Character Showcase creator page (/character-showcase), a “Create Mod” section is rendered at the top of the page content, above the existing header and form content, and clicking its primary CTA navigates to /create.",
+        "On the Story Mode editor page (/story-mode/edit/$storyId), a “Create Mod” section is rendered above the story editor’s main content, and if tabs are present on the page it appears above the tab navigation.",
+        "The “Create Mod” section is visually consistent with the app’s UI component style (Card/Button/etc.) and uses English user-facing text."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update the enabled-state query/mutation wiring to keep React Query cache in sync with backend state (e.g., set the ['mod', modId, 'enabled'] cached value on successful mutation and continue invalidating dependent queries) so toggles reliably reflect the backend-persisted enabled state across reloads/devices."
+          "path": "frontend/src/components/promo/CreateModSection.tsx",
+          "operation": "create",
+          "description": "Create a reusable “Create Mod” promo section composed from existing shadcn components (Card/Button) with English copy and a primary CTA that navigates to /create. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/mods/ModEnabledToggle.tsx",
+          "path": "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
           "operation": "modify",
-          "description": "Ensure the toggle UI always renders from the backend-fetched enabled state and refreshes the displayed state after backend confirmation (e.g., rely on updated query cache or refetch), without introducing any local-storage persistence."
+          "description": "Render the CreateModSection at the top of the creator page content (above the existing header block and form), ensuring its CTA navigates to /create. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/StoryModeEditPage.tsx",
+          "operation": "modify",
+          "description": "Render the CreateModSection at the top of the story editor page content inside the StoryModeSectionLayout children so it appears above the editor’s main content and above the Tabs navigation. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add a reusable 30-second video game ad placement component with an Advertisement label and live countdown, and embed it on Landing and Dashboard.",
+      "acceptanceCriteria": [
+        "A reusable ad placement component exists and can be embedded on multiple pages without duplicating logic.",
+        "The 30-second ad placement shows an “Advertisement” label and a 30-second countdown timer that updates while the ad is playing.",
+        "At least the Landing page (/) and Dashboard (/dashboard) include a 30-second ad placement rendered within the page layout (not via the backend).",
+        "All user-facing strings related to ads are in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useAdCountdown.ts",
+          "operation": "create",
+          "description": "Add a small hook to manage ad countdown state driven by playback (start/pause/reset, remaining seconds), to be shared by ad placements and the required ad gate."
+        },
+        {
+          "path": "frontend/src/components/ads/AdPlacement.tsx",
+          "operation": "create",
+          "description": "Implement a reusable 30-second ad placement component that renders a video player UI, shows a clear “Advertisement” label, and displays a visible countdown from 30 seconds updating while playing; include a graceful state for when the video cannot load (still show labeled UI and countdown behavior as appropriate). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/ads/sample-30s-ad.mp4",
+          "operation": "create",
+          "description": "Add a locally-served, license-safe sample ~30-second ad video file to support the ad placement player UI without relying on backend rendering."
+        },
+        {
+          "path": "frontend/src/pages/LandingPage.tsx",
+          "operation": "modify",
+          "description": "Embed the reusable AdPlacement component within the existing Landing page layout (keeping it within the page content container) so a 30-second ad is displayed on /. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "modify",
+          "description": "Embed the reusable AdPlacement component within the existing Dashboard page layout so a 30-second ad is displayed on /dashboard. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Gate creator completion flows with a mandatory non-dismissible 60-second advertisement modal that must finish before continuing, with fallback behavior if video fails.",
+      "acceptanceCriteria": [
+        "After a successful Story Mode save that navigates away from the editor (e.g., the current “Story saved successfully” flow), a modal gate is shown that requires a full 60-second ad watch before allowing the user to continue to the destination page.",
+        "After a successful Character Showcase publish/update (the current publish flow in CharacterShowcaseCreatorPage), a modal gate is shown that requires a full 60-second ad watch before the user can proceed (e.g., before interacting with the success/share UI).",
+        "The required 60-second ad gate clearly indicates it is an advertisement and shows a visible countdown from 60 seconds to 0.",
+        "The required ad gate cannot be closed/skipped before completion (no close button, overlay click disabled, Escape key disabled).",
+        "If the ad video cannot load, the gate still enforces a 60-second countdown with a clear message indicating the ad is unavailable, and still cannot be skipped."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ads/AdGateModal.tsx",
+          "operation": "create",
+          "description": "Create a controlled, non-dismissible 60-second ad gate modal composed from existing shadcn dialog primitives (no close button, ignore open-state changes until complete, disable overlay click and Escape); show “Advertisement” labeling, a visible 60→0 countdown, and a clear message when video fails while still enforcing the countdown. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/public/assets/ads/sample-60s-ad.mp4",
+          "operation": "create",
+          "description": "Add a locally-served, license-safe sample ~60-second ad video file for the mandatory completion gate modal (with the UI still enforcing countdown if it fails to load)."
+        },
+        {
+          "path": "frontend/src/pages/StoryModeEditPage.tsx",
+          "operation": "modify",
+          "description": "Change the post-save success flow: instead of immediately navigating away after “Story saved successfully”, open the AdGateModal and only navigate to the destination (e.g., /story-mode) after the 60-second gate completes; keep all new ad strings in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+          "operation": "modify",
+          "description": "Change the publish/update success flow to show the AdGateModal before exposing the success/share UI (e.g., delay setting shareUrl / success state until the 60-second gate completes); ensure the gate cannot be dismissed and uses English ad messaging. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Render a mod on/off toggle under the share link section that loads current enabled state from backend and updates it via backend mutation with loading + success/error feedback.",
+      "summary": "Apply a cohesive, modern non-blue/non-purple visual theme to the Create Mod section and all ad UI, consistent across placements.",
       "acceptanceCriteria": [
-        "The mod management page shows a toggle below the share link area for the current mod.",
-        "The toggle shows a loading state until the enabled value is fetched from the backend.",
-        "Toggling shows success and error feedback in English and updates the displayed state after the backend confirms the change."
+        "The “Create Mod” section and all ad UI (30-second placements and 60-second gate modal) share consistent styling (spacing, card treatment, headings, CTA button style).",
+        "The chosen theme avoids blue/purple as the primary brand look and feels coherent with the existing Tailwind/shadcn design language.",
+        "All user-facing text introduced by these changes is in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ModManagePage.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Confirm the existing toggle placement remains directly below the share link section and that the correct modId is passed through for backend-backed loading/mutation (no new routes/pages)."
+          "description": "Add cohesive theme tokens and/or utility classes (e.g., warm amber/orange + neutral/emerald accents) specifically for the Create Mod promo and ad surfaces, ensuring the new UI does not use blue/purple as the primary look while remaining consistent with existing shadcn/Tailwind styling."
         },
         {
-          "path": "frontend/src/components/mods/ModEnabledToggle.tsx",
+          "path": "frontend/src/components/promo/CreateModSection.tsx",
           "operation": "modify",
-          "description": "Add explicit loading and error UI states for fetching enabled status (e.g., show an English inline error message + optional retry when the backend read fails), and ensure mutation pending state is clearly represented while preventing double-toggles; keep English success/error toasts and update the displayed state only after backend confirmation."
+          "description": "Apply the shared promo/ad theme styling (spacing, card treatment, headings, CTA styling) so the Create Mod section matches the ad UI theme and remains consistent with existing Card/Button patterns. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/ads/AdPlacement.tsx",
           "operation": "modify",
-          "description": "Harden enabled-state hooks to support the toggle UX: expose needed error/refetch signals from the enabled-state query (if required by the UI changes) and ensure the enabled-state mutation updates/invalidate queries so the UI reflects the backend-confirmed value."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "On the public mod page, show a clear English disabled/unavailable message and hide download/share UI when backend denies access for disabled mods.",
-      "acceptanceCriteria": [
-        "Opening a disabled mod’s unlisted link shows a clear English message indicating the mod is unavailable/disabled.",
-        "The page does not render download/share actions when the mod cannot be fetched due to being disabled."
-      ],
-      "file_operations": [
+          "description": "Apply the shared promo/ad theme styling to the 30-second ad placement (label, countdown, card treatment) so it matches the Create Mod section and the 60-second gate modal. Verify the component's usage instructions before implementing."
+        },
         {
-          "path": "frontend/src/pages/PublicModPage.tsx",
+          "path": "frontend/src/components/ads/AdGateModal.tsx",
           "operation": "modify",
-          "description": "Improve disabled-mod detection and messaging when getModByUnlistedId fails: treat backend denial/trap messages indicating disabled/unavailable as the disabled case (not only 'Mod not found'), render a clear English 'mod unavailable/disabled' message, and ensure no download/share actions are rendered when mod data is not available."
+          "description": "Apply the shared promo/ad theme styling to the 60-second gate modal (label, countdown, layout) to match the 30-second placement and Create Mod section, without relying on blue/purple as the primary look. Verify the component's usage instructions before implementing."
         }
       ]
     }

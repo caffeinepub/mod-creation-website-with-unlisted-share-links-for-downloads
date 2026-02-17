@@ -1,22 +1,23 @@
 import { ReactNode } from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
-import { Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ShieldAlert } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
 
 interface RequireAuthProps {
   children: ReactNode;
 }
 
 export default function RequireAuth({ children }: RequireAuthProps) {
-  const { identity, isInitializing } = useInternetIdentity();
+  const { identity, login, loginStatus, isInitializing } = useInternetIdentity();
 
   if (isInitializing) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-muted-foreground">Loading...</p>
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin mx-auto border-4 border-primary border-t-transparent rounded-full" />
+          <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -25,20 +26,31 @@ export default function RequireAuth({ children }: RequireAuthProps) {
   if (!identity) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <Alert>
-            <ShieldAlert className="h-4 w-4" />
-            <AlertTitle>Authentication Required</AlertTitle>
-            <AlertDescription>
-              You need to be signed in to access this page.
-            </AlertDescription>
-          </Alert>
-          <div className="mt-6 text-center">
-            <Button asChild>
-              <Link to="/signin">Sign In</Link>
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Authentication Required
+            </CardTitle>
+            <CardDescription>
+              You need to sign in to access this content
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <AlertDescription>
+                This feature requires authentication. Please sign in to continue.
+              </AlertDescription>
+            </Alert>
+            <Button
+              onClick={login}
+              disabled={loginStatus === 'logging-in'}
+              className="w-full mt-4"
+            >
+              {loginStatus === 'logging-in' ? 'Signing in...' : 'Sign In'}
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

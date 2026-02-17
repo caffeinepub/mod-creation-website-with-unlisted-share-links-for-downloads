@@ -10,47 +10,129 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface ModData {
+export interface Chapter {
+  'id' : bigint,
+  'title' : string,
+  'scenes' : Array<Scene>,
+  'unlistedId' : string,
+  'quests' : Array<Quest>,
+}
+export interface CharacterShowcase {
   'id' : string,
-  'files' : Array<ModFile>,
   'title' : string,
   'creator' : Principal,
+  'video' : [] | [ExternalBlob],
+  'characterName' : string,
   'description' : string,
-  'version' : string,
-  'enabled' : boolean,
-  'gameName' : string,
-  'prompt' : string,
+  'author' : string,
+  'unlistedId' : string,
+  'photo' : [] | [ExternalBlob],
+}
+export type ExternalBlob = Uint8Array;
+export interface Quest {
+  'id' : bigint,
+  'title' : string,
+  'isCompleted' : boolean,
+  'description' : string,
   'unlistedId' : string,
 }
-export interface ModFile {
-  'content' : Uint8Array,
-  'contentType' : string,
-  'filename' : string,
+export interface Scene {
+  'id' : bigint,
+  'voiceOver' : string,
+  'audioRecording' : [] | [ExternalBlob],
+  'title' : string,
+  'content' : string,
+  'context' : string,
+  'hasDialogue' : boolean,
+  'speechVoicePreset' : [] | [string],
+  'voiceCoachingText' : string,
+}
+export interface StoryMode {
+  'id' : string,
+  'title' : string,
+  'creator' : Principal,
+  'characterDescription' : string,
+  'description' : string,
+  'interactionCapabilities' : string,
+  'chapters' : Array<Chapter>,
+  'unlistedId' : string,
 }
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'createMod' : ActorMethod<
-    [string, string, string, string, string, string, Array<ModFile>, string],
+  'createCharacterShowcase' : ActorMethod<
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      [] | [ExternalBlob],
+      [] | [ExternalBlob],
+      string,
+    ],
+    undefined
+  >,
+  'createStoryMode' : ActorMethod<
+    [string, string, string, Array<Chapter>, string, string, string],
     undefined
   >,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
-  'getMod' : ActorMethod<[string], ModData>,
-  'getModByUnlistedId' : ActorMethod<[string], ModData>,
-  'getModEnabledState' : ActorMethod<[string], boolean>,
+  'getCharacterShowcase' : ActorMethod<[string], [] | [CharacterShowcase]>,
+  'getStoryMode' : ActorMethod<[string], [] | [StoryMode]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'listModFiles' : ActorMethod<[string], Array<ModFile>>,
-  'listModsForCreator' : ActorMethod<[Principal], Array<ModData>>,
-  'listModsForGame' : ActorMethod<[string], Array<ModData>>,
+  'listCharacterShowcases' : ActorMethod<[], Array<CharacterShowcase>>,
+  'listStoryModes' : ActorMethod<[], Array<StoryMode>>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
-  'setModEnabledState' : ActorMethod<[string, boolean], undefined>,
-  'updateModFiles' : ActorMethod<[string, Array<ModFile>], undefined>,
+  'updateCharacterShowcase' : ActorMethod<
+    [
+      string,
+      string,
+      string,
+      string,
+      string,
+      [] | [ExternalBlob],
+      [] | [ExternalBlob],
+    ],
+    undefined
+  >,
+  'updateStoryMode' : ActorMethod<
+    [string, string, string, Array<Chapter>, string, string],
+    undefined
+  >,
+  'updateStoryModeEnabledState' : ActorMethod<[string, boolean], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

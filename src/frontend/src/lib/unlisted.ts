@@ -12,3 +12,8 @@ export function getShareUrl(unlistedId: string): string {
   const origin = window.location.origin;
   return `${origin}/#/mod/${unlistedId}`;
 }
+
+export function getCharacterShareUrl(unlistedId: string): string {
+  const origin = window.location.origin;
+  return `${origin}/#/character/${unlistedId}`;
+}

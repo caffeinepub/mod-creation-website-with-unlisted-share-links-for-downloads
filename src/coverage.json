@@ -1,79 +1,102 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T09:11:46.010Z",
+  "generatedAt": "2026-02-17T08:04:56.411Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Persist each mod’s enabled/disabled state in the backend so that when the mod creator toggles the mod on/off on one device, the same enabled state is returned when the creator opens the app on any other device (including consoles).",
+        "summary": "Add a prominent “Create Mod” section that appears above the main content (above any existing tab navigation where present) on creator-oriented pages so it is shown above both the Create Character and Create Story Mode experiences, and link the section to the existing Mod Create route (/create).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/mods/ModEnabledToggle.tsx"
+          "frontend/src/components/promo/CreateModSection.tsx",
+          "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+          "frontend/src/pages/StoryModeEditPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/mods/ModEnabledToggle.tsx"
+          "frontend/src/components/promo/CreateModSection.tsx",
+          "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+          "frontend/src/pages/StoryModeEditPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Enforce access control for enabled-state operations: only the mod creator (or an admin) can read or update a mod’s enabled/disabled state by modId.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "When a mod is disabled, block public/unlisted access so that requests to fetch a mod by unlistedId do not return the mod/files while disabled.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-4",
-        "summary": "On the mod management page, render a mod on/off toggle UI directly below the existing share link section; the toggle must load the current enabled state from the backend and update it via a backend mutation.",
+        "summary": "Integrate 30-second “video game ads” into the website by adding an ad placement component that can display a 30-second ad experience (video player UI with a visible 30-second countdown and clear “Advertisement” labeling) on key pages.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ModManagePage.tsx",
-          "frontend/src/components/mods/ModEnabledToggle.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useAdCountdown.ts",
+          "frontend/src/components/ads/AdPlacement.tsx",
+          "frontend/public/assets/ads/sample-30s-ad.mp4",
+          "frontend/src/pages/LandingPage.tsx",
+          "frontend/src/pages/DashboardPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/mods/ModEnabledToggle.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useAdCountdown.ts",
+          "frontend/src/components/ads/AdPlacement.tsx",
+          "frontend/public/assets/ads/sample-30s-ad.mp4",
+          "frontend/src/pages/LandingPage.tsx",
+          "frontend/src/pages/DashboardPage.tsx"
         ]
       },
       {
-        "id": "REQ-5",
-        "summary": "On the public mod page, handle disabled mods gracefully by showing an English “mod unavailable/disabled” message instead of broken UI when the backend denies access because the mod is disabled.",
+        "id": "REQ-3",
+        "summary": "Require creators to watch a 1-minute video game advertisement after successfully finishing/publishing a project by gating completion flows with a mandatory 60-second ad modal that cannot be dismissed until the countdown completes.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/PublicModPage.tsx"
+          "frontend/src/components/ads/AdGateModal.tsx",
+          "frontend/public/assets/ads/sample-60s-ad.mp4",
+          "frontend/src/pages/StoryModeEditPage.tsx",
+          "frontend/src/pages/CharacterShowcaseCreatorPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/PublicModPage.tsx"
+          "frontend/src/components/ads/AdGateModal.tsx",
+          "frontend/public/assets/ads/sample-60s-ad.mp4",
+          "frontend/src/pages/StoryModeEditPage.tsx",
+          "frontend/src/pages/CharacterShowcaseCreatorPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Establish and apply a cohesive, modern visual theme for the new “Create Mod” section and ad UI (colors, typography accents, and layout), consistent across all placements, without using a blue/purple primary theme.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/promo/CreateModSection.tsx",
+          "frontend/src/components/ads/AdPlacement.tsx",
+          "frontend/src/components/ads/AdGateModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/components/promo/CreateModSection.tsx",
+          "frontend/src/components/ads/AdPlacement.tsx",
+          "frontend/src/components/ads/AdGateModal.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/mods/ModEnabledToggle.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/PublicModPage.tsx",
+    "frontend/public/assets/ads/sample-30s-ad.mp4",
+    "frontend/public/assets/ads/sample-60s-ad.mp4",
+    "frontend/src/components/ads/AdGateModal.tsx",
+    "frontend/src/components/ads/AdPlacement.tsx",
+    "frontend/src/components/promo/CreateModSection.tsx",
+    "frontend/src/hooks/useAdCountdown.ts",
+    "frontend/src/index.css",
+    "frontend/src/pages/CharacterShowcaseCreatorPage.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/pages/StoryModeEditPage.tsx",
+    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

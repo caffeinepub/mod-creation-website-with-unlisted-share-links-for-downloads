@@ -14,7 +14,7 @@ import ModShareLink from '../components/mods/ModShareLink';
 import { generateUnlistedId } from '../lib/unlisted';
 import { validateModTitle, validateGameName, validateModVersion, validateModDescription, validateModPrompt } from '../lib/validation';
 import { validateFileCount } from '../lib/fileLimits';
-import type { ModFile } from '../backend';
+import type { ModFile } from '../lib/modTypes';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -93,28 +93,7 @@ function CreateWizardContent() {
   };
 
   const handlePublish = async () => {
-    const modId = `mod_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const newUnlistedId = generateUnlistedId();
-
-    try {
-      await createModMutation.mutateAsync({
-        modId,
-        title: formData.title,
-        description: formData.description,
-        prompt: formData.prompt,
-        version: formData.version,
-        gameName: formData.gameName,
-        files: formData.files,
-        unlistedId: newUnlistedId,
-      });
-
-      setUnlistedId(newUnlistedId);
-      setStep(4);
-      toast.success('Mod published successfully!');
-    } catch (error: any) {
-      console.error('Failed to create mod:', error);
-      toast.error(error.message || 'Failed to create mod');
-    }
+    toast.error('Mod functionality is not available in the backend');
   };
 
   const renderStep = () => {

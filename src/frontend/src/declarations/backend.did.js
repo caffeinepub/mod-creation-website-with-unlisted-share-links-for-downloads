@@ -8,42 +8,122 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const ModFile = IDL.Record({
-  'content' : IDL.Vec(IDL.Nat8),
-  'contentType' : IDL.Text,
-  'filename' : IDL.Text,
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const Scene = IDL.Record({
+  'id' : IDL.Nat,
+  'voiceOver' : IDL.Text,
+  'audioRecording' : IDL.Opt(ExternalBlob),
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'context' : IDL.Text,
+  'hasDialogue' : IDL.Bool,
+  'speechVoicePreset' : IDL.Opt(IDL.Text),
+  'voiceCoachingText' : IDL.Text,
+});
+export const Quest = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'isCompleted' : IDL.Bool,
+  'description' : IDL.Text,
+  'unlistedId' : IDL.Text,
+});
+export const Chapter = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'scenes' : IDL.Vec(Scene),
+  'unlistedId' : IDL.Text,
+  'quests' : IDL.Vec(Quest),
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
-export const ModData = IDL.Record({
+export const CharacterShowcase = IDL.Record({
   'id' : IDL.Text,
-  'files' : IDL.Vec(ModFile),
   'title' : IDL.Text,
   'creator' : IDL.Principal,
+  'video' : IDL.Opt(ExternalBlob),
+  'characterName' : IDL.Text,
   'description' : IDL.Text,
-  'version' : IDL.Text,
-  'enabled' : IDL.Bool,
-  'gameName' : IDL.Text,
-  'prompt' : IDL.Text,
+  'author' : IDL.Text,
+  'unlistedId' : IDL.Text,
+  'photo' : IDL.Opt(ExternalBlob),
+});
+export const StoryMode = IDL.Record({
+  'id' : IDL.Text,
+  'title' : IDL.Text,
+  'creator' : IDL.Principal,
+  'characterDescription' : IDL.Text,
+  'description' : IDL.Text,
+  'interactionCapabilities' : IDL.Text,
+  'chapters' : IDL.Vec(Chapter),
   'unlistedId' : IDL.Text,
 });
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createMod' : IDL.Func(
+  'createCharacterShowcase' : IDL.Func(
       [
         IDL.Text,
         IDL.Text,
         IDL.Text,
         IDL.Text,
         IDL.Text,
+        IDL.Opt(ExternalBlob),
+        IDL.Opt(ExternalBlob),
         IDL.Text,
-        IDL.Vec(ModFile),
+      ],
+      [],
+      [],
+    ),
+  'createStoryMode' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Vec(Chapter),
+        IDL.Text,
+        IDL.Text,
         IDL.Text,
       ],
       [],
@@ -51,66 +131,165 @@ export const idlService = IDL.Service({
     ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getMod' : IDL.Func([IDL.Text], [ModData], ['query']),
-  'getModByUnlistedId' : IDL.Func([IDL.Text], [ModData], ['query']),
-  'getModEnabledState' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+  'getCharacterShowcase' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(CharacterShowcase)],
+      ['query'],
+    ),
+  'getStoryMode' : IDL.Func([IDL.Text], [IDL.Opt(StoryMode)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'listModFiles' : IDL.Func([IDL.Text], [IDL.Vec(ModFile)], ['query']),
-  'listModsForCreator' : IDL.Func(
-      [IDL.Principal],
-      [IDL.Vec(ModData)],
+  'listCharacterShowcases' : IDL.Func(
+      [],
+      [IDL.Vec(CharacterShowcase)],
       ['query'],
     ),
-  'listModsForGame' : IDL.Func([IDL.Text], [IDL.Vec(ModData)], ['query']),
+  'listStoryModes' : IDL.Func([], [IDL.Vec(StoryMode)], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'setModEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
-  'updateModFiles' : IDL.Func([IDL.Text, IDL.Vec(ModFile)], [], []),
+  'updateCharacterShowcase' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Opt(ExternalBlob),
+        IDL.Opt(ExternalBlob),
+      ],
+      [],
+      [],
+    ),
+  'updateStoryMode' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(Chapter), IDL.Text, IDL.Text],
+      [],
+      [],
+    ),
+  'updateStoryModeEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const ModFile = IDL.Record({
-    'content' : IDL.Vec(IDL.Nat8),
-    'contentType' : IDL.Text,
-    'filename' : IDL.Text,
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const Scene = IDL.Record({
+    'id' : IDL.Nat,
+    'voiceOver' : IDL.Text,
+    'audioRecording' : IDL.Opt(ExternalBlob),
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'context' : IDL.Text,
+    'hasDialogue' : IDL.Bool,
+    'speechVoicePreset' : IDL.Opt(IDL.Text),
+    'voiceCoachingText' : IDL.Text,
+  });
+  const Quest = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'isCompleted' : IDL.Bool,
+    'description' : IDL.Text,
+    'unlistedId' : IDL.Text,
+  });
+  const Chapter = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'scenes' : IDL.Vec(Scene),
+    'unlistedId' : IDL.Text,
+    'quests' : IDL.Vec(Quest),
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
-  const ModData = IDL.Record({
+  const CharacterShowcase = IDL.Record({
     'id' : IDL.Text,
-    'files' : IDL.Vec(ModFile),
     'title' : IDL.Text,
     'creator' : IDL.Principal,
+    'video' : IDL.Opt(ExternalBlob),
+    'characterName' : IDL.Text,
     'description' : IDL.Text,
-    'version' : IDL.Text,
-    'enabled' : IDL.Bool,
-    'gameName' : IDL.Text,
-    'prompt' : IDL.Text,
+    'author' : IDL.Text,
+    'unlistedId' : IDL.Text,
+    'photo' : IDL.Opt(ExternalBlob),
+  });
+  const StoryMode = IDL.Record({
+    'id' : IDL.Text,
+    'title' : IDL.Text,
+    'creator' : IDL.Principal,
+    'characterDescription' : IDL.Text,
+    'description' : IDL.Text,
+    'interactionCapabilities' : IDL.Text,
+    'chapters' : IDL.Vec(Chapter),
     'unlistedId' : IDL.Text,
   });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createMod' : IDL.Func(
+    'createCharacterShowcase' : IDL.Func(
         [
           IDL.Text,
           IDL.Text,
           IDL.Text,
           IDL.Text,
           IDL.Text,
+          IDL.Opt(ExternalBlob),
+          IDL.Opt(ExternalBlob),
           IDL.Text,
-          IDL.Vec(ModFile),
+        ],
+        [],
+        [],
+      ),
+    'createStoryMode' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Vec(Chapter),
+          IDL.Text,
+          IDL.Text,
           IDL.Text,
         ],
         [],
@@ -118,25 +297,44 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getMod' : IDL.Func([IDL.Text], [ModData], ['query']),
-    'getModByUnlistedId' : IDL.Func([IDL.Text], [ModData], ['query']),
-    'getModEnabledState' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
+    'getCharacterShowcase' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(CharacterShowcase)],
+        ['query'],
+      ),
+    'getStoryMode' : IDL.Func([IDL.Text], [IDL.Opt(StoryMode)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'listModFiles' : IDL.Func([IDL.Text], [IDL.Vec(ModFile)], ['query']),
-    'listModsForCreator' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Vec(ModData)],
+    'listCharacterShowcases' : IDL.Func(
+        [],
+        [IDL.Vec(CharacterShowcase)],
         ['query'],
       ),
-    'listModsForGame' : IDL.Func([IDL.Text], [IDL.Vec(ModData)], ['query']),
+    'listStoryModes' : IDL.Func([], [IDL.Vec(StoryMode)], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'setModEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
-    'updateModFiles' : IDL.Func([IDL.Text, IDL.Vec(ModFile)], [], []),
+    'updateCharacterShowcase' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Opt(ExternalBlob),
+          IDL.Opt(ExternalBlob),
+        ],
+        [],
+        [],
+      ),
+    'updateStoryMode' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(Chapter), IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
+    'updateStoryModeEnabledState' : IDL.Func([IDL.Text, IDL.Bool], [], []),
   });
 };
 

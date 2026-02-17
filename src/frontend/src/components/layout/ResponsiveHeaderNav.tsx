@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { LogIn, LogOut, LayoutDashboard, Plus, Menu } from 'lucide-react';
+import { LogIn, LogOut, LayoutDashboard, Menu, BookOpen, User } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ResponsiveHeaderNav() {
@@ -33,10 +33,16 @@ export default function ResponsiveHeaderNav() {
                 Dashboard
               </Link>
             </Button>
-            <Button variant="default" asChild>
-              <Link to="/create">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Mod
+            <Button variant="ghost" asChild>
+              <Link to="/story-mode">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Story Mode
+              </Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link to="/character-showcase">
+                <User className="h-4 w-4 mr-2" />
+                Character
               </Link>
             </Button>
             <Button variant="outline" onClick={handleAuth} disabled={isLoggingIn}>
@@ -73,10 +79,16 @@ export default function ResponsiveHeaderNav() {
                     Dashboard
                   </Link>
                 </Button>
-                <Button variant="default" asChild className="justify-start" onClick={() => setOpen(false)}>
-                  <Link to="/create">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Mod
+                <Button variant="ghost" asChild className="justify-start" onClick={() => setOpen(false)}>
+                  <Link to="/story-mode">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Story Mode
+                  </Link>
+                </Button>
+                <Button variant="ghost" asChild className="justify-start" onClick={() => setOpen(false)}>
+                  <Link to="/character-showcase">
+                    <User className="h-4 w-4 mr-2" />
+                    Character
                   </Link>
                 </Button>
                 <Button variant="outline" onClick={handleAuth} disabled={isLoggingIn} className="justify-start">

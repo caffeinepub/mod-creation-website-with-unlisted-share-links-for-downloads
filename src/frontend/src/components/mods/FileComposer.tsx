@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Upload, FileText, X, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateFileSize, formatFileSize, MAX_FILE_COUNT, MAX_TEXT_FILE_COUNT } from '../../lib/fileLimits';
-import type { ModFile } from '../../backend';
+import type { ModFile } from '../../lib/modTypes';
 
 interface FileComposerProps {
   files: ModFile[];

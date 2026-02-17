@@ -1,34 +1,40 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Implement a backend-saved mod on/off toggle so the same toggle state loads consistently across all devices, including consoles.",
-  "architectural_notes": [
-    "Store mod enable/disable toggle state on backend to ensure consistent value across devices (including consoles)."
-  ],
+  "summary": "Project now includes UI changes to add a \"Create Mod\" section above the main Create Character/Create Story Mode tabs, plus video game advertisement integrations including a required 1-minute ad after creators finish projects.",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-persist-each-mod-s-enabled-disabled-state-in-the-backend-so-that-when-the-mod-creator-toggles-the-mod-on-off-on-one-device-the-same-enabled-state-is-returned-when-the-creator-opens-the-app-on-any-other-device-including-consoles",
-      "title": "Persist each mod’s enabled/disabled state in the backend so that when the mod creator toggles the mod on/off on one device, the same enabled state is returned when the creator opens the app on any other device (including consoles).",
+      "id": "feature-add-a-prominent-create-mod-section-that-appears-above-the-main-content-above-any-existing-tab-navigation-where-present-on-creator-oriented-pages-so-it-is-shown-above-both-the-create-character-and-create-story-mode-experiences-and-link-the-section-to-the-existing-mod-create-route-create",
+      "title": "Add a prominent “Create Mod” section that appears above the main content (above any existing tab navigation where present) on creator-oriented pages so it is shown above both the Create Character and Create Story Mode experiences, and link the section to the existing Mod Create route (/create).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-on-the-mod-management-page-render-a-mod-on-off-toggle-ui-directly-below-the-existing-share-link-section-the-toggle-must-load-the-current-enabled-state-from-the-backend-and-update-it-via-a-backend-mutation",
-      "title": "On the mod management page, render a mod on/off toggle UI directly below the existing share link section; the toggle must load the current enabled state from the backend and update it via a backend mutation.",
+      "id": "feature-integrate-30-second-video-game-ads-into-the-website-by-adding-an-ad-placement-component-that-can-display-a-30-second-ad-experience-video-player-ui-with-a-visible-30-second-countdown-and-clear-advertisement-labeling-on-key-pages",
+      "title": "Integrate 30-second “video game ads” into the website by adding an ad placement component that can display a 30-second ad experience (video player UI with a visible 30-second countdown and clear “Advertisement” labeling) on key pages.",
       "reqIds": [
-        "REQ-4"
+        "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-on-the-public-mod-page-handle-disabled-mods-gracefully-by-showing-an-english-mod-unavailable-disabled-message-instead-of-broken-ui-when-the-backend-denies-access-because-the-mod-is-disabled",
-      "title": "On the public mod page, handle disabled mods gracefully by showing an English “mod unavailable/disabled” message instead of broken UI when the backend denies access because the mod is disabled.",
+      "id": "feature-require-creators-to-watch-a-1-minute-video-game-advertisement-after-successfully-finishing-publishing-a-project-by-gating-completion-flows-with-a-mandatory-60-second-ad-modal-that-cannot-be-dismissed-until-the-countdown-completes",
+      "title": "Require creators to watch a 1-minute video game advertisement after successfully finishing/publishing a project by gating completion flows with a mandatory 60-second ad modal that cannot be dismissed until the countdown completes.",
       "reqIds": [
-        "REQ-5"
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-establish-and-apply-a-cohesive-modern-visual-theme-for-the-new-create-mod-section-and-ad-ui-colors-typography-accents-and-layout-consistent-across-all-placements-without-using-a-blue-purple-primary-theme",
+      "title": "Establish and apply a cohesive, modern visual theme for the new “Create Mod” section and ad UI (colors, typography accents, and layout), consistent across all placements, without using a blue/purple primary theme.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -36,28 +42,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Persist mod on/off toggle state in backend so all devices (including consoles) load the same value.",
+      "summary": "Add a \"Create Mod\" section positioned above both the Create Character and Create Story Mode tabs (above entire tab navigation/page content).",
       "reqIds": [],
       "status": "in_progress"
     },
     {
-      "id": "AR-3",
-      "summary": "Enforce access control for enabled-state operations: only the mod creator (or an admin) can read or update a mod’s enabled/disabled state by modId.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "When a mod is disabled, block public/unlisted access so that requests to fetch a mod by unlistedId do not return the mod/files while disabled.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
+      "id": "AR-2",
+      "summary": "Integrate video game advertisements: place 30-second video game ads on the webpage and require creators to watch a 1-minute video game ad after completing their projects.",
+      "reqIds": [],
+      "status": "in_progress"
     }
   ],
-  "projectName": "Persist mod on/off toggle so all devices load the same state",
+  "projectName": "Grylie's Mods",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

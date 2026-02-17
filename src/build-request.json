@@ -1,121 +1,99 @@
 {
   "kind": "build_request",
-  "title": "Persist mod on/off toggle so all devices load the same state",
+  "title": "Add Create Mod section above creator pages and implement video game ad experiences",
+  "projectName": "Grylie's Mods",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Persist each mod’s enabled/disabled state in the backend so that when the mod creator toggles the mod on/off on one device, the same enabled state is returned when the creator opens the app on any other device (including consoles).",
-      "target": "both",
+      "text": "Add a prominent “Create Mod” section that appears above the main content (above any existing tab navigation where present) on creator-oriented pages so it is shown above both the Create Character and Create Story Mode experiences, and link the section to the existing Mod Create route (/create).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6",
+          "msg-10"
         ],
         "quotes": [
-          "Make it so if you toggle it on It will be toggled on on all devices including  Consoles",
-          "Let it load the same value",
-          "Proceed with the build"
+          "The create mod is above both the create character and create story mode",
+          "1."
         ]
       },
       "acceptanceCriteria": [
-        "When a creator toggles a mod to Disabled on Device A, then opens the mod management page on Device B, the toggle loads as Disabled without relying on local storage.",
-        "When a creator toggles a mod to Enabled on Device A, then opens the public/unlisted link, the mod is accessible again.",
-        "The enabled state is fetched from the backend and not derived from client-only state."
+        "On the Character Showcase creator page (/character-showcase), a “Create Mod” section is rendered at the top of the page content, above the existing header and form content, and clicking its primary CTA navigates to /create.",
+        "On the Story Mode editor page (/story-mode/edit/$storyId), a “Create Mod” section is rendered above the story editor’s main content, and if tabs are present on the page it appears above the tab navigation.",
+        "The “Create Mod” section is visually consistent with the app’s UI component style (Card/Button/etc.) and uses English user-facing text."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Enforce access control for enabled-state operations: only the mod creator (or an admin) can read or update a mod’s enabled/disabled state by modId.",
-      "target": "backend",
+      "text": "Integrate 30-second “video game ads” into the website by adding an ad placement component that can display a 30-second ad experience (video player UI with a visible 30-second countdown and clear “Advertisement” labeling) on key pages.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-5"
         ],
         "quotes": [
-          "I amtalking about the toggle that turns the mod on or off",
-          "Across all devices including console"
+          "also put video game ADS that are 30 seconds on the webpage"
         ]
       },
       "acceptanceCriteria": [
-        "A non-creator, non-admin authenticated user cannot read a mod’s enabled state via the backend API.",
-        "A non-creator, non-admin authenticated user cannot change a mod’s enabled state via the backend API.",
-        "The mod creator can read and update the enabled state successfully."
+        "A reusable ad placement component exists and can be embedded on multiple pages without duplicating logic.",
+        "The 30-second ad placement shows an “Advertisement” label and a 30-second countdown timer that updates while the ad is playing.",
+        "At least the Landing page (/) and Dashboard (/dashboard) include a 30-second ad placement rendered within the page layout (not via the backend).",
+        "All user-facing strings related to ads are in English."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "When a mod is disabled, block public/unlisted access so that requests to fetch a mod by unlistedId do not return the mod/files while disabled.",
-      "target": "backend",
+      "text": "Require creators to watch a 1-minute video game advertisement after successfully finishing/publishing a project by gating completion flows with a mandatory 60-second ad modal that cannot be dismissed until the countdown completes.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-12"
         ],
         "quotes": [
-          "Let it load the same value"
+          "Make it so when creators are done with their projects they have to watch a 1 minute video game advertisement Box PlayStation mobile Nintendo etcetera"
         ]
       },
       "acceptanceCriteria": [
-        "If a mod is disabled, backend calls to fetch the mod via its unlistedId fail (do not return mod data or files).",
-        "If the same mod is re-enabled, backend calls to fetch the mod via its unlistedId succeed again."
+        "After a successful Story Mode save that navigates away from the editor (e.g., the current “Story saved successfully” flow), a modal gate is shown that requires a full 60-second ad watch before allowing the user to continue to the destination page.",
+        "After a successful Character Showcase publish/update (the current publish flow in CharacterShowcaseCreatorPage), a modal gate is shown that requires a full 60-second ad watch before the user can proceed (e.g., before interacting with the success/share UI).",
+        "The required 60-second ad gate clearly indicates it is an advertisement and shows a visible countdown from 60 seconds to 0.",
+        "The required ad gate cannot be closed/skipped before completion (no close button, overlay click disabled, Escape key disabled).",
+        "If the ad video cannot load, the gate still enforces a 60-second countdown with a clear message indicating the ad is unavailable, and still cannot be skipped."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "On the mod management page, render a mod on/off toggle UI directly below the existing share link section; the toggle must load the current enabled state from the backend and update it via a backend mutation.",
+      "text": "Establish and apply a cohesive, modern visual theme for the new “Create Mod” section and ad UI (colors, typography accents, and layout), consistent across all placements, without using a blue/purple primary theme.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-14"
         ],
         "quotes": [
-          "I amtalking about the toggle that turns the mod on or off"
+          "Proceed to build"
         ]
       },
       "acceptanceCriteria": [
-        "The mod management page shows a toggle below the share link area for the current mod.",
-        "The toggle shows a loading state until the enabled value is fetched from the backend.",
-        "Toggling shows success and error feedback in English and updates the displayed state after the backend confirms the change."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "On the public mod page, handle disabled mods gracefully by showing an English “mod unavailable/disabled” message instead of broken UI when the backend denies access because the mod is disabled.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Let it load the same value"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Opening a disabled mod’s unlisted link shows a clear English message indicating the mod is unavailable/disabled.",
-        "The page does not render download/share actions when the mod cannot be fetched due to being disabled."
+        "The “Create Mod” section and all ad UI (30-second placements and 60-second gate modal) share consistent styling (spacing, card treatment, headings, CTA button style).",
+        "The chosen theme avoids blue/purple as the primary brand look and feels coherent with the existing Tailwind/shadcn design language.",
+        "All user-facing text introduced by these changes is in English."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo.",
-    "Do not edit files in frontend immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui)."
+    "Do not edit files under frontend/src/components/ui (shadcn components must be composed, not modified).",
+    "Do not modify any frontend immutable paths listed in SYSTEM_CONTEXT (including identity/actor hooks and main bootstrap files).",
+    "Keep backend as a single Motoko actor; do not add additional backend services."
   ],
   "nonGoals": [
-    "Instant real-time syncing of the toggle across devices while both are open (e.g., via websockets/push).",
-    "Adding third-party authentication beyond Internet Identity.",
-    "Adding external databases or non-IC persistence layers."
+    "Integrating with real third-party ad networks (e.g., Google AdSense) or implementing ad targeting/analytics.",
+    "Adding payments, subscriptions, or revenue tracking related to ads.",
+    "Implementing real-time ad verification beyond the local UI countdown gate."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }
